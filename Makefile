@@ -1,6 +1,6 @@
 CC     = gcc
 CFLAGS = -Wall -O2
-LIBS   = -lGL -lGLEW -lglfw -lm
+LIBS   = -lGL -lGLEW -lglfw -lraylib -lm
 
 all: output
 
