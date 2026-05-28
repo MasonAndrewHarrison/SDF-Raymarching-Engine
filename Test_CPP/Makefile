@@ -1,12 +1,13 @@
 CXX = g++
+CXXFLAGS = -g
 
 all: output
 
-output: main
+output: main.o
 	$(CXX) -o $@ $^
 
 %.o: %.cpp
-	$(CXX) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 run: output
 	./output
