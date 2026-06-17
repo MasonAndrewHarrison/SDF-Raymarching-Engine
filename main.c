@@ -9,7 +9,7 @@ int main(void) {
     GLFWwindow *window = glfwCreateWindow(800, 600, "Cuastic Gaussian Demo", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
 
-    glfwMakeContextCurrent(window); // what else would go in here?
+    glfwMakeContextCurrent(window); 
     glewExperimental = GL_TRUE;
     glewInit();
 
@@ -21,15 +21,15 @@ int main(void) {
         0.5f, -0.5f,
     };
 
-    unsigned int buffer;  // what is unsigned
-    glGenBuffers(1, &buffer); // is the buffer on the cpu only and the position on the gpu? // does the 1 mean
+    unsigned int buffer;  
+    glGenBuffers(1, &buffer); 
     glBindBuffer(GL_ARRAY_BUFFER, buffer);  
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), position, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), position, GL_STATIC_DRAW); 
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);// still don't understand.
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
