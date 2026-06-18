@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 char* readFile(const char* path) {
-    // open the file
+
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
         printf("error: could not open file %s\n", path);
