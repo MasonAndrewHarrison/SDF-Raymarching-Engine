@@ -2,7 +2,35 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+char* readFile(const char* path) {
+    // open the file
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        printf("error: could not open file %s\n", path);
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);   
+    long length = ftell(file);  
+    rewind(file);          
+
+    char* buffer = malloc(length + 1);
+    if (buffer == NULL) {
+        printf("error: malloc failed for file %s\n", path);
+        fclose(file);
+        return NULL;
+    }
+
+
+    fread(buffer, 1, length, file);
+    buffer[length] = '\0';  
+
+    fclose(file);
+    return buffer;
+}
 
 static unsigned int compileShader(unsigned int type, const char* source){
     
@@ -73,21 +101,11 @@ int main(void) {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    const char* vertexShader =
-        "#version 330 core\n"
-        "layout(location = 0) in vec4 position;\n"
-        "void main() {\n"
-        "    gl_Position = position;\n"
-        "}\n";
-
-    const char* fragmentShader =
-        "#version 330 core\n"
-        "layout(location = 0) out vec4 color;\n"
-        "void main() {\n"
-        "    color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "}\n";
-        
-    unsigned int shader = createShader(vertexShader, fragmentShader);
+    char* vertexSource = readFile("shaders/vertex.glsl");
+    char* fragmentSource = readFile("shaders/fragment.glsl");
+    unsigned int shader = createShader(vertexSource, fragmentSource);
+    free(vertexSource);
+    free(fragmentSource);
     glUseProgram(shader);
 
     while (!glfwWindowShouldClose(window)) {
