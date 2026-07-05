@@ -86,10 +86,10 @@ int main(void) {
     printf("%s", glGetString(GL_VERSION));
 
     float position[] = {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-        -0.5f, 0.5f,
+        -0.8f, -0.8f,
+        0.8f, -0.8f,
+        0.8f, 0.8f,
+        -0.8f, 0.8f,
 
     };
 
@@ -125,7 +125,6 @@ int main(void) {
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //new
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
         glfwSwapBuffers(window);
