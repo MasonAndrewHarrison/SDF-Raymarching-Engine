@@ -1,8 +1,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-#include <stdio.h>
 #include <stdlib.h>
+
+#define WIDTH               800
+#define HEIGHT              600
+#define MAX_SHADER_ERROR    1024
 
 static void glClearError() {
     while (glGetError() != GL_NO_ERROR);
@@ -70,10 +73,8 @@ static unsigned int compileShader(unsigned int type, const char* source){
     int result;
     glGetShaderiv(id, GL_COMPILE_STATUS, &result);
     if (result == GL_FALSE){
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char message[length];
-        glGetShaderInfoLog(id, length, &length, message);
+        char message[MAX_SHADER_ERROR];
+        glGetShaderInfoLog(id, MAX_SHADER_ERROR, NULL, message);
         printf("%s", message);
         glDeleteShader(id);
         return 0;
@@ -88,7 +89,6 @@ static unsigned int createShader(const char* vertexShader, const char* fragmentS
     unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-    //Read doc on these.
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
@@ -105,7 +105,7 @@ int main(void) {
 
     if (!glfwInit()) return -1;
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Cuastic Gaussian Demo", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Cuastic Gaussian Demo", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
 
     glfwMakeContextCurrent(window); 
@@ -131,12 +131,11 @@ int main(void) {
     unsigned int buffer;  
     glGenBuffers(1, &buffer); 
     glBindBuffer(GL_ARRAY_BUFFER, buffer);  
-    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), position, GL_STATIC_DRAW); 
+    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), position, GL_STATIC_DRAW); 
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0);
 
-    //Understand new code.
     unsigned int ibo;
     glGenBuffers(1, &ibo); 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);  
@@ -150,8 +149,17 @@ int main(void) {
     free(fragmentSource);
     glUseProgram(shader);
 
+    int timeLoc = glGetUniformLocation(shader, "uTime");
+    int resolutionLoc = glGetUniformLocation(shader, "uResolution");
+
+    float startTime = glfwGetTime();
+
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
+
+        float currentTime = glfwGetTime() - startTime;
+        glUniform1f(timeLoc, currentTime);
+        glUniform2f(resolutionLoc, WIDTH, HEIGHT);
 
         GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
