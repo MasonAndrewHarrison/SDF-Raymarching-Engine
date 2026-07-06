@@ -4,6 +4,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void glClearError() {
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static void glCheckError(const char* file, int line) {
+    GLenum error;
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        switch(error) {
+            case GL_INVALID_ENUM:
+                printf("[%s:%d] GL_INVALID_ENUM\n", file, line);
+                break;
+            case GL_INVALID_VALUE:
+                printf("[%s:%d] GL_INVALID_VALUE\n", file, line);
+                break;
+            case GL_INVALID_OPERATION:
+                printf("[%s:%d] GL_INVALID_OPERATION\n", file, line);
+                break;
+            case GL_OUT_OF_MEMORY:
+                printf("[%s:%d] GL_OUT_OF_MEMORY\n", file, line);
+                break;
+            default:
+                printf("[%s:%d] Error: %u\n", file, line, error);
+                break;
+        }
+    }
+}
+
+#define GL_CALL(x) glClearError(); x; glCheckError(__FILE__, __LINE__);
+
 char* readFile(const char* path) {
 
     FILE* file = fopen(path, "rb");
@@ -83,7 +112,7 @@ int main(void) {
     glewExperimental = GL_TRUE;
     glewInit();
 
-    printf("%s", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_VERSION));
 
     float position[] = {
         -0.8f, -0.8f,
@@ -93,7 +122,6 @@ int main(void) {
 
     };
 
-    //new
     unsigned int indices[] = {
         0, 1, 2,
         2, 3, 0,
@@ -125,7 +153,7 @@ int main(void) {
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+        GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -10,5 +10,11 @@ output: main.c
 run: output
 	./output
 
+debug: main.c
+	$(CC) main.c -o output -Wall -g $(LIBS)
+
+run-debug: debug
+	gdb ./output
+
 clean:
 	rm -f output
