@@ -6,6 +6,7 @@
 #define WIDTH               800
 #define HEIGHT              600
 #define MAX_SHADER_ERROR    1024
+#define VSYNC_INTERVAL      1
 
 static void glClearError() {
     while (glGetError() != GL_NO_ERROR);
@@ -109,6 +110,7 @@ int main(void) {
     if (!window) { glfwTerminate(); return -1; }
 
     glfwMakeContextCurrent(window); 
+    glfwSwapInterval(VSYNC_INTERVAL);
     glewExperimental = GL_TRUE;
     glewInit();
 
@@ -151,6 +153,8 @@ int main(void) {
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
+    int stretchLoc = glGetUniformLocation(shader, "uStretch");
+    int angleLoc = glGetUniformLocation(shader, "uAngle");
 
     float startTime = glfwGetTime();
 
@@ -160,6 +164,8 @@ int main(void) {
         float currentTime = glfwGetTime() - startTime;
         glUniform1f(timeLoc, currentTime);
         glUniform2f(resolutionLoc, WIDTH, HEIGHT);
+        glUniform2f(stretchLoc, 3.0f, 7.0f);
+        glUniform1f(angleLoc, currentTime);
 
         GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
