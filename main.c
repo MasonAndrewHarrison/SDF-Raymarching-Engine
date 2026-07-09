@@ -106,6 +106,10 @@ int main(void) {
 
     if (!glfwInit()) return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Cuastic Gaussian Demo", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
 
@@ -129,6 +133,10 @@ int main(void) {
         2, 3, 0,
 
     };
+
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     unsigned int buffer;  
     glGenBuffers(1, &buffer); 
@@ -159,6 +167,7 @@ int main(void) {
     float startTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window)) {
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         float currentTime = glfwGetTime() - startTime;
