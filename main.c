@@ -2,10 +2,10 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "shader.h"
 
 #define WIDTH               800
 #define HEIGHT              600
-#define MAX_SHADER_ERROR    1024
 #define VSYNC_INTERVAL      1
 
 static void glClearError() {
@@ -36,70 +36,6 @@ static void glCheckError(const char* file, int line) {
 }
 
 #define GL_CALL(x) glClearError(); x; glCheckError(__FILE__, __LINE__);
-
-char* readFile(const char* path) {
-
-    FILE* file = fopen(path, "rb");
-    if (file == NULL) {
-        printf("error: could not open file %s\n", path);
-        return NULL;
-    }
-
-
-    fseek(file, 0, SEEK_END);   
-    long length = ftell(file);  
-    rewind(file);          
-
-    char* buffer = malloc(length + 1);
-    if (buffer == NULL) {
-        printf("error: malloc failed for file %s\n", path);
-        fclose(file);
-        return NULL;
-    }
-
-
-    fread(buffer, 1, length, file);
-    buffer[length] = '\0';  
-
-    fclose(file);
-    return buffer;
-}
-
-static unsigned int compileShader(unsigned int type, const char* source){
-    
-    unsigned int id = glCreateShader(type);
-    glShaderSource(id, 1, &source, NULL);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE){
-        char message[MAX_SHADER_ERROR];
-        glGetShaderInfoLog(id, MAX_SHADER_ERROR, NULL, message);
-        printf("%s", message);
-        glDeleteShader(id);
-        return 0;
-    }
-
-    return id;
-}
-
-static unsigned int createShader(const char* vertexShader, const char* fragmentShader) {
-
-    unsigned int program = glCreateProgram();
-    unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
 
 
 int main(void) {
@@ -152,11 +88,7 @@ int main(void) {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW); 
 
 
-    char* vertexSource = readFile("shaders/vertex.glsl");
-    char* fragmentSource = readFile("shaders/fragment.glsl");
-    unsigned int shader = createShader(vertexSource, fragmentSource);
-    free(vertexSource);
-    free(fragmentSource);
+    unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
