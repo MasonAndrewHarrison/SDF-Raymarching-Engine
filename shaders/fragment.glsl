@@ -19,8 +19,12 @@ void main() {
     offset = vec2(offset.x * c - offset.y * s, offset.x * s + offset.y * c);
     offset *= uStretch;
 
-    float r = exp(-dot(offset * vec2(1.0, sin(uTime)+1.5), offset * vec2(1.0, 2.0)));
+    float r = exp(-dot(offset * vec2(1.0, sin(uTime)+1.5), offset * vec2(1.0, 1.75)));
     float g = exp(-dot(offset * vec2(2.0, 1.0), offset * vec2(cos(uTime)*0.5 + 0.75, 1.0)));
     float b = exp(-dot(offset * vec2(1.5, 1.5), offset * vec2(1.5, 1.5)));
-    color = vec4(r, g, b, 1.0);
+
+
+    float alpha = max(r, max(g, b));
+
+    color = vec4(r, g, b, alpha);
 }
