@@ -14,9 +14,6 @@
 
 int main(void) {
 
-    mat4 view;
-    glm_mat4_identity(view);
-
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
