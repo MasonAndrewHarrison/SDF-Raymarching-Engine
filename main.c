@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "shader.h"
 #include "glError.h"
+#include "cglm/cglm.h"
 
 #define WIDTH               800
 #define HEIGHT              600
@@ -12,6 +13,9 @@
 
 
 int main(void) {
+
+    vec3 pos = {0.0f, 0.0f, 3.0f};
+    printf("pos: %f %f %f\n", pos[0], pos[1], pos[2]);
 
     if (!glfwInit()) return -1;
 
@@ -48,7 +52,7 @@ int main(void) {
 
     unsigned int vao;
     glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    glBindVertexArray(vao); 
 
     unsigned int buffer;  
     glGenBuffers(1, &buffer); 
@@ -63,9 +67,9 @@ int main(void) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);  
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW); 
 
-
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
+
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
