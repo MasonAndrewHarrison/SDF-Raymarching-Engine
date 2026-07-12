@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "shader.h"
 #include "glError.h"
-#include "cglm/cglm.h"
+#include <cglm/cglm.h>
 
 #define WIDTH               800
 #define HEIGHT              600
@@ -14,8 +14,8 @@
 
 int main(void) {
 
-    vec3 pos = {0.0f, 0.0f, 3.0f};
-    printf("pos: %f %f %f\n", pos[0], pos[1], pos[2]);
+    mat4 view;
+    glm_mat4_identity(view);
 
     if (!glfwInit()) return -1;
 

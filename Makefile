@@ -1,6 +1,6 @@
 CC     = gcc
-CFLAGS = -Wall -O2 -Icglm/include
-LIBS   = -lGL -lGLEW -lglfw -lm
+CFLAGS = -Wall -O2
+LIBS   = -lGL -lGLEW -lglfw -lm -lcglm
 SRC    = main.c shader.c glError.c
 
 all: output
