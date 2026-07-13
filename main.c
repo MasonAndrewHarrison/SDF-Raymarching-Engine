@@ -67,11 +67,15 @@ int main(void) {
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
 
+    mat4 proj;
+    glm_ortho(-2.0f , 2.0f, -1.5f, 1.5f, -1.0f, 1.0f, proj);
+
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
     int stretchLoc = glGetUniformLocation(shader, "uStretch");
     int angleLoc = glGetUniformLocation(shader, "uAngle");
+    int MVPLoc = glGetUniformLocation(shader, "uMVP");
 
     float startTime = glfwGetTime();
 
@@ -84,6 +88,7 @@ int main(void) {
         glUniform2f(resolutionLoc, WIDTH, HEIGHT);
         glUniform2f(stretchLoc, 3.0f, 7.0f);
         glUniform1f(angleLoc, currentTime);
+        glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)proj);
 
         GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
