@@ -68,7 +68,7 @@ int main(void) {
     glUseProgram(shader);
 
     mat4 proj;
-    glm_ortho(-2.0f , 2.0f, -1.5f, 1.5f, -1.0f, 1.0f, proj);
+    glm_ortho(-(float)WIDTH/HEIGHT , (float)WIDTH/HEIGHT, -1.0f, 1.0f, -1.0f, 1.0f, proj);
 
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
