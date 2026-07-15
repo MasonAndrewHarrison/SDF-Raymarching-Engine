@@ -7,7 +7,7 @@
 #include <cglm/cglm.h>
 
 #define WIDTH               800
-#define HEIGHT              600
+#define HEIGHT              900
 #define VSYNC_INTERVAL      1
 
 
