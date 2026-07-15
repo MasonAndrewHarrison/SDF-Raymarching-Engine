@@ -67,9 +67,18 @@ int main(void) {
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
 
-    mat4 proj;
-    glm_ortho(-(float)WIDTH/HEIGHT , (float)WIDTH/HEIGHT, -1.0f, 1.0f, -1.0f, 1.0f, proj);
+    mat4 proj  = GLM_MAT4_IDENTITY_INIT;
+    mat4 view  = GLM_MAT4_IDENTITY_INIT;
+    mat4 model = GLM_MAT4_IDENTITY_INIT;
+    mat4 pv;
+    mat4 mvp;
 
+    glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 100.0f, proj);
+    glm_translate(view, (vec3){0.0f, 0.0f, 0.0f});
+
+    vec3 eye    = {0.0f, 0.0f,  3.0f};
+    vec3 center = {0.0f, 0.0f,  0.0f};
+    vec3 up     = {0.0f, 1.0f,  0.0f};
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
@@ -81,6 +90,17 @@ int main(void) {
 
     while (!glfwWindowShouldClose(window)) {
 
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+            printf("W pressed\n");
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            printf("S pressed\n");
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            printf("A pressed\n");
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            printf("D pressed\n");
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         float currentTime = glfwGetTime() - startTime;
@@ -88,7 +108,11 @@ int main(void) {
         glUniform2f(resolutionLoc, WIDTH, HEIGHT);
         glUniform2f(stretchLoc, 3.0f, 7.0f);
         glUniform1f(angleLoc, currentTime);
-        glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)proj);
+
+        glm_lookat(eye, center, up, view);
+        glm_mat4_mul(proj,  view,  pv);
+        glm_mat4_mul(pv,    model, mvp);
+        glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
         GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
