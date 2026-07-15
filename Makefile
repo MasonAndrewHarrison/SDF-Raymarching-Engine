@@ -1,7 +1,7 @@
 CC     = gcc
 CFLAGS = -Wall -O2
 LIBS   = -lGL -lGLEW -lglfw -lm -lcglm
-SRC    = main.c shader.c glError.c
+SRC    = main.c shader.c glError.c camera.c
 
 all: output
 

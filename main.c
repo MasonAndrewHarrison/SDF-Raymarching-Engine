@@ -5,11 +5,11 @@
 #include "shader.h"
 #include "glError.h"
 #include <cglm/cglm.h>
+#include "camera.h"
 
-#define WIDTH               800
-#define HEIGHT              900
+#define WIDTH               1920
+#define HEIGHT              1080
 #define VSYNC_INTERVAL      1
-
 
 
 int main(void) {
@@ -20,7 +20,7 @@ int main(void) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Cuastic Gaussian Demo", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Cuastic Gaussian Demo", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
 
     glfwMakeContextCurrent(window); 
@@ -31,10 +31,10 @@ int main(void) {
     printf("%s\n", glGetString(GL_VERSION));
 
     float position[] = {
-        -0.8f, -0.8f,
-        0.8f, -0.8f,
-        0.8f, 0.8f,
-        -0.8f, 0.8f,
+        -0.8f, -0.8f, 0.0f,
+        0.8f, -0.8f, 0.0f,
+        0.8f, 0.8f, 0.0f,
+        -0.8f, 0.8f, 0.0f,
 
     };
 
@@ -54,10 +54,10 @@ int main(void) {
     unsigned int buffer;  
     glGenBuffers(1, &buffer); 
     glBindBuffer(GL_ARRAY_BUFFER, buffer);  
-    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), position, GL_STATIC_DRAW); 
+    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), position, GL_STATIC_DRAW); 
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)0);
 
     unsigned int ibo;
     glGenBuffers(1, &ibo); 
@@ -76,9 +76,11 @@ int main(void) {
     glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 100.0f, proj);
     glm_translate(view, (vec3){0.0f, 0.0f, 0.0f});
 
-    vec3 eye    = {0.0f, 0.0f,  3.0f};
-    vec3 center = {0.0f, 0.0f,  0.0f};
-    vec3 up     = {0.0f, 1.0f,  0.0f};
+    camera mainCamera = {
+        .eye    = {0.0f, 0.0f, 3.0f},
+        .center = {0.0f, 0.0f, 0.0f},
+        .up     = {0.0f, 1.0f, 0.0f}
+    };
 
     int timeLoc = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
@@ -90,18 +92,9 @@ int main(void) {
 
     while (!glfwWindowShouldClose(window)) {
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-            printf("W pressed\n");
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            printf("S pressed\n");
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            printf("A pressed\n");
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            printf("D pressed\n");
-
         glClear(GL_COLOR_BUFFER_BIT);
+
+        updateCamera(window, &mainCamera);
 
         float currentTime = glfwGetTime() - startTime;
         glUniform1f(timeLoc, currentTime);
@@ -109,7 +102,7 @@ int main(void) {
         glUniform2f(stretchLoc, 3.0f, 7.0f);
         glUniform1f(angleLoc, currentTime);
 
-        glm_lookat(eye, center, up, view);
+        glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
         glm_mat4_mul(proj,  view,  pv);
         glm_mat4_mul(pv,    model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
