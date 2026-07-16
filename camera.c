@@ -3,6 +3,23 @@
 #include <cglm/cglm.h>
 #include "camera.h"
 
+
+camera cameraInit(int width, int height){
+
+    camera cam = {
+        .eye    = {0.0f, 0.0f, 3.0f},
+        .center = {0.0f, 0.0f, 0.0f},
+        .up     = {0.0f, 1.0f, 0.0f},
+        .yaw = 0.0f,
+        .pitch = 0.0f,
+        .lastX = width /2.0f,
+        .lastY = height / 2.0f,
+        .firstMouse = 1,
+    };
+
+    return cam;
+}
+
 void moveCamera(vec3 move, camera* cam){
     glm_vec3_add(cam->eye, move, cam->eye);
     glm_vec3_add(cam->center, move, cam->center);

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "shader.h"
-#include "glError.h"
 #include <cglm/cglm.h>
 #include "camera.h"
 #include "mesh.h"
@@ -67,17 +66,6 @@ int main(void) {
 
     glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 100.0f, proj);
 
-    camera mainCamera = {
-        .eye    = {0.0f, 0.0f, 3.0f},
-        .center = {0.0f, 0.0f, 0.0f},
-        .up     = {0.0f, 1.0f, 0.0f},
-        .yaw = 0.0f,
-        .pitch = 0.0f,
-        .lastX = WIDTH /2.0f,
-        .lastY = HEIGHT / 2.0f,
-        .firstMouse = 1,
-    };
-
     int timeLoc       = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
     int stretchLoc    = glGetUniformLocation(shader, "uStretch");
@@ -86,6 +74,7 @@ int main(void) {
 
     float startTime = (float)glfwGetTime();
 
+    camera mainCamera = cameraInit(WIDTH, HEIGHT);
     Mesh cube = createMesh(positions, 8 * 3, indices, 36);
 
     vec3 cubePositions[10] = {

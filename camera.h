@@ -16,6 +16,7 @@ typedef struct camera {
   int firstMouse;
 } camera;
 
+camera cameraInit(int height, int width);
 void moveCamera(vec3 move, camera *cam);
 void updateCamera(GLFWwindow *window, camera *cam);
 
