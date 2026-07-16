@@ -40,3 +40,11 @@ void updateCamera(GLFWwindow* window, camera* cam){
         moveCamera(move, cam);
     }
 }
+
+void mouseCallback(GLFWwindow*  window, double xpos, double ypos){
+
+    camera* cam = glfwGetWindowUserPointer(window);
+    
+
+
+}
