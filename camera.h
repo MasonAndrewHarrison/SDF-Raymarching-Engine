@@ -9,6 +9,11 @@ typedef struct camera {
   vec3 eye;
   vec3 center;
   vec3 up;
+  float yaw;
+  float pitch;
+  float lastX;
+  float lastY;
+  int firstMouse;
 } camera;
 
 void moveCamera(vec3 move, camera *cam);

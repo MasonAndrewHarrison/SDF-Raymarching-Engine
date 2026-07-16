@@ -6,63 +6,55 @@
 #include "glError.h"
 #include <cglm/cglm.h>
 #include "camera.h"
+#include "mesh.h"
 
-#define WIDTH               1920
-#define HEIGHT              1080
-#define VSYNC_INTERVAL      1
+#define WIDTH          1920
+#define HEIGHT         1080
+#define VSYNC_INTERVAL 1
+
+
 
 
 int main(void) {
-
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Cuastic Gaussian Demo", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Caustic Gaussian Demo", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
 
-    glfwMakeContextCurrent(window); 
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(VSYNC_INTERVAL);
     glewExperimental = GL_TRUE;
     glewInit();
-
     printf("%s\n", glGetString(GL_VERSION));
 
-    float position[] = {
-        -0.8f, -0.8f, 0.0f,
-        0.8f, -0.8f, 0.0f,
-        0.8f, 0.8f, 0.0f,
-        -0.8f, 0.8f, 0.0f,
-
+    float positions[] = {
+        -0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
     };
 
     unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0,
-
+        0, 1, 2,  2, 3, 0,
+        4, 5, 6,  6, 7, 4,
+        0, 3, 7,  7, 4, 0,
+        1, 2, 6,  6, 5, 1,
+        3, 2, 6,  6, 7, 3,
+        0, 1, 5,  5, 4, 0,
     };
 
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao); 
-
-    unsigned int buffer;  
-    glGenBuffers(1, &buffer); 
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);  
-    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), position, GL_STATIC_DRAW); 
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)0);
-
-    unsigned int ibo;
-    glGenBuffers(1, &ibo); 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);  
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW); 
 
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
@@ -74,47 +66,70 @@ int main(void) {
     mat4 mvp;
 
     glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 100.0f, proj);
-    glm_translate(view, (vec3){0.0f, 0.0f, 0.0f});
 
     camera mainCamera = {
         .eye    = {0.0f, 0.0f, 3.0f},
         .center = {0.0f, 0.0f, 0.0f},
-        .up     = {0.0f, 1.0f, 0.0f}
+        .up     = {0.0f, 1.0f, 0.0f},
+        .yaw = 0.0f,
+        .pitch = 0.0f,
+        .lastX = WIDTH /2.0f,
+        .lastY = HEIGHT / 2.0f,
+        .firstMouse = 1,
     };
 
-    int timeLoc = glGetUniformLocation(shader, "uTime");
+    int timeLoc       = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
-    int stretchLoc = glGetUniformLocation(shader, "uStretch");
-    int angleLoc = glGetUniformLocation(shader, "uAngle");
-    int MVPLoc = glGetUniformLocation(shader, "uMVP");
+    int stretchLoc    = glGetUniformLocation(shader, "uStretch");
+    int angleLoc      = glGetUniformLocation(shader, "uAngle");
+    int MVPLoc        = glGetUniformLocation(shader, "uMVP");
 
-    float startTime = glfwGetTime();
+    float startTime = (float)glfwGetTime();
+
+    Mesh cube = createMesh(positions, 8 * 3, indices, 36);
+
+    vec3 cubePositions[10] = {
+        { 0.0f,  0.0f,  0.0f},
+        { 1.0f,  0.0f,  0.0f},
+        {-1.0f,  0.0f,  0.0f},
+        { 0.0f,  1.0f,  0.0f},
+        { 0.0f, -1.0f,  0.0f},
+        { 2.0f,  0.0f,  0.0f},
+        {-2.0f,  0.0f,  0.0f},
+        { 0.0f,  2.0f,  0.0f},
+        { 1.0f,  1.0f,  0.0f},
+        {-1.0f, -1.0f,  0.0f},
+    };
 
     while (!glfwWindowShouldClose(window)) {
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         updateCamera(window, &mainCamera);
 
-        float currentTime = glfwGetTime() - startTime;
-        glUniform1f(timeLoc, currentTime);
-        glUniform2f(resolutionLoc, WIDTH, HEIGHT);
-        glUniform2f(stretchLoc, 3.0f, 7.0f);
-        glUniform1f(angleLoc, currentTime);
+        float currentTime = (float)glfwGetTime() - startTime;
+        glUniform1f(timeLoc,       currentTime);
+        glUniform2f(resolutionLoc, (float)WIDTH, (float)HEIGHT);
+        glUniform2f(stretchLoc,    3.0f, 7.0f);
+        glUniform1f(angleLoc,      currentTime);
 
         glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
         glm_mat4_mul(proj,  view,  pv);
-        glm_mat4_mul(pv,    model, mvp);
-        glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
+        for (int i = 0; i < 10; i++) {
+            glm_mat4_identity(model);
+            glm_translate(model, cubePositions[i]);
+            glm_mat4_mul(pv, model, mvp);
+            glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
+            drawMesh(&cube);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    destroyMesh(&cube);
     glDeleteProgram(shader);
-
     glfwTerminate();
     return 0;
-} 
+}
