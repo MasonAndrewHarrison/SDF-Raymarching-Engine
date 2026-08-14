@@ -11,9 +11,6 @@
 #define HEIGHT         1080
 #define VSYNC_INTERVAL 1
 
-
-
-
 int main(void) {
     if (!glfwInit()) return -1;
 
@@ -44,6 +41,7 @@ int main(void) {
     unsigned int indices[] = {
         0, 1, 2,  2, 3, 0,
         4, 5, 6,  6, 7, 4,
+        
         0, 3, 7,  7, 4, 0,
         1, 2, 6,  6, 5, 1,
         3, 2, 6,  6, 7, 3,
