@@ -19,9 +19,9 @@ static const unsigned int SCREEN_INDICES[] = {
 2, 3, 0,
 };
 
-class screen {
+class Screen {
 public:
-    screen();
+    Screen();
     void draw();
     void free();
 

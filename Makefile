@@ -1,7 +1,7 @@
 CXX    = g++
 CFLAGS = -Wall -O2
 LIBS   = -lSDL3 -lGL -lm -lglm -lGLEW
-SRC    = main.cpp screen.cpp
+SRC    = main.cpp screen.cpp shader.cpp
 
 all: output
 

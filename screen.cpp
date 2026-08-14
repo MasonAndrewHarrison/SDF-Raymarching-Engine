@@ -1,7 +1,7 @@
 
 #include "screen.h"
 
-screen::screen() {
+Screen::Screen() {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ibo);
@@ -17,13 +17,13 @@ screen::screen() {
 
 }
 
-void screen::draw() {
+void Screen::draw() {
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 
-void screen::free() {
+void Screen::free() {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ibo);
     glDeleteVertexArrays(1, &vao);

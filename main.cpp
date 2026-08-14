@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "screen.h"
+#include "shader.h"
 
 #include <stdio.h>
 
@@ -48,7 +49,8 @@ int main(int argc, char* argv[]) {
     printf("OpenGL: %s\n", glGetString(GL_VERSION));
 
 
-    screen myScreen = screen();
+    Screen screen;
+    Shader mainShader = Shader("shaders/vertex.glsl", "shaders/fragment.glsl");
     bool running = true;
     SDL_Event event;
 
@@ -60,17 +62,20 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_KEY_DOWN)
                 if (event.key.scancode == SDL_SCANCODE_ESCAPE)
                     running = false;
+            if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+                int newWidth  = event.window.data1;
+                int newHeight = event.window.data2;
+                glViewport(0, 0, newWidth, newHeight);
+            }
         }
 
-        glClearColor(0.0f, 0.4f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        myScreen.draw();
-
+        mainShader.use();
+        screen.draw();
         SDL_GL_SwapWindow(window);
     }
 
-    myScreen.free();
+    screen.free();
+    mainShader.free();
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
