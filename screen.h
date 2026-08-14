@@ -22,8 +22,8 @@ static const unsigned int SCREEN_INDICES[] = {
 class Screen {
 public:
     Screen();
+    ~Screen();
     void draw();
-    void free();
 
 private:
     unsigned int vao;

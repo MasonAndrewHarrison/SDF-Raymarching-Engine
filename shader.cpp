@@ -49,6 +49,10 @@ Shader::Shader(const std::string& vertPath, const std::string& fragPath) {
     glDeleteShader(fs);
 }
 
+Shader::~Shader(){
+    glDeleteProgram(program);
+}
+
 void Shader::use() {
     glUseProgram(program);
 }
@@ -63,8 +67,4 @@ void Shader::setVec2(const std::string& name, float x, float y) {
 
 void Shader::setMat4(const std::string& name, const float* matrix) {
     glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, matrix);
-}
-
-void Shader::free(){
-    glDeleteProgram(program);
 }

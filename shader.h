@@ -10,13 +10,13 @@
 class Shader {
 public:
     Shader(const std::string& vertPath, const std::string& fragPath);
+    ~Shader();
     void use();
     unsigned int getID() const { return program; }
 
     void setFloat(const std::string& name, float value);
     void setVec2(const std::string& name, float x, float y);
     void setMat4(const std::string& name, const float* matrix);
-    void free();
 
 private:
     unsigned int program;
