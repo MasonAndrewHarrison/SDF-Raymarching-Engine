@@ -17,14 +17,15 @@ Screen::Screen() {
 
 }
 
+Screen::~Screen() {
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ibo);
+    glDeleteVertexArrays(1, &vao);
+}
+
 void Screen::draw() {
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 
-void Screen::free() {
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ibo);
-    glDeleteVertexArrays(1, &vao);
-}
