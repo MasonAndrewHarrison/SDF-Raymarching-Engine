@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]) {
 
     state = stateInit();
-    Program raycaster = Program(600, 400);
+    Program raycaster = Program(1200, 800);
     raycaster.Running();
     raycaster.Close();
 

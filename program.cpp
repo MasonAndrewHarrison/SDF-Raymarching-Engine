@@ -16,7 +16,7 @@ Program::Program(int width, int height){
     window = SDL_CreateWindow(
         "Raycaster -dev",
         width, height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+        SDL_WINDOW_OPENGL
     );
     if (!window) {
         printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
@@ -43,6 +43,9 @@ Program::Program(int width, int height){
 
 void Program::Running(){
 
+    int newWidth, newHeight;
+    SDL_GetWindowSizeInPixels(window, &newWidth, &newHeight);
+
     while (state.running) {
 
         while (SDL_PollEvent(&event)) {
@@ -52,12 +55,12 @@ void Program::Running(){
                 if (event.key.scancode == SDL_SCANCODE_ESCAPE)
                     state.running = false;
             if (event.type == SDL_EVENT_WINDOW_RESIZED) {
-                int newWidth  = event.window.data1;
-                int newHeight = event.window.data2;
+                SDL_GetWindowSizeInPixels(window, &newWidth, &newHeight);
                 glViewport(0, 0, newWidth, newHeight);
             }
         }
 
+        mainShader->setVec2("uResolution", newWidth, newHeight);
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);
