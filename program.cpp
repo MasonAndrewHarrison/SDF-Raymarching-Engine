@@ -1,7 +1,7 @@
 #include "program.h"
 
 
-Program::Program(int width, int height, std::string title){
+Program::Program(int width, int height){
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         printf("SDL_Init failed: %s\n", SDL_GetError());
@@ -14,7 +14,7 @@ Program::Program(int width, int height, std::string title){
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     window = SDL_CreateWindow(
-        "Raycaster",
+        "Raycaster -dev",
         width, height,
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
     );

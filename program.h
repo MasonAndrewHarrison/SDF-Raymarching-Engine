@@ -9,7 +9,7 @@
 
 class Program{
     public:
-        Program(int width, int height, std::string title);
+        Program(int width, int height);
         void Running();
         void Close();
     private:
