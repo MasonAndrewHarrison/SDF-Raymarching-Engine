@@ -58,9 +58,7 @@ void Program::Running(){
 
         eventHandler(&event, window, deltaTime);
 
-        mainShader->setFloat("uCameraPhi", state.cameraPhi);
-        mainShader->setFloat("uCameraDistance", state.cameraDistance);
-        mainShader->setVec2("uResolution", state.width, state.height);
+        mainShader->setUniforms();
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);

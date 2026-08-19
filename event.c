@@ -2,6 +2,7 @@
 
 static void eventButtonPress(SDL_Event* event, double deltaTime);
 static void eventButtonHold(const bool* stateArray, double deltaTime);
+static void eventMouseMotion(SDL_Event* event, double deltaTime);
 
 void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
 
@@ -14,10 +15,13 @@ void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
             eventButtonPress(event, deltaTime);
         }
 
+        if (event->type == SDL_EVENT_MOUSE_MOTION){
+            eventMouseMotion(event, deltaTime);
+        }
+
         if (event->type == SDL_EVENT_WINDOW_RESIZED) {
             SDL_GetWindowSizeInPixels(window, &state.width, &state.height);
             glViewport(0, 0, state.width, state.height);
-
         }
     }
     const bool* stateArray = SDL_GetKeyboardState(NULL);
@@ -48,4 +52,17 @@ static void eventButtonHold(const bool* stateArray, double deltaTime){
     if (stateArray[SDL_SCANCODE_D]){
         state.cameraPhi += 1 * deltaTime;
     }
+}
+
+static void eventMouseMotion(SDL_Event* event, double deltaTime){
+
+    float sensitivity = 0.005f;
+
+    if (event->button.button == SDL_BUTTON_MIDDLE) {
+        state.cameraTheda -= event->motion.yrel * sensitivity;
+        state.cameraPhi   += event->motion.xrel * sensitivity;
+    }
+
+    if (state.cameraPhi > 89.0f)  state.cameraPhi = 89.0f;
+    if (state.cameraPhi < -89.0f) state.cameraPhi = -89.0f;
 }

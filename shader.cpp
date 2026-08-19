@@ -53,6 +53,16 @@ Shader::~Shader(){
     glDeleteProgram(program);
 }
 
+void Shader::setUniforms(){
+
+    glm::vec3 rayOrigin;
+
+    this->setFloat("uCameraPhi", state.cameraPhi);
+    this->setFloat("uCameraTheda", state.cameraTheda);
+    this->setFloat("uCameraDistance", state.cameraDistance);
+    this->setVec2("uResolution", state.width, state.height);
+}
+
 void Shader::use() {
     glUseProgram(program);
 }
