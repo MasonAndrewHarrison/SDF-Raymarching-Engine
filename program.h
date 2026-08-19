@@ -6,6 +6,7 @@
 #include "screen.h"
 #include "state.h"
 #include <stdio.h>
+#include "event.h"
 
 class Program{
     public:

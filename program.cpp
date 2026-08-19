@@ -13,6 +13,9 @@ Program::Program(int width, int height){
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    state.width = width;
+    state.height = height;
+
     window = SDL_CreateWindow(
         "Raycaster -dev",
         width, height,
@@ -43,24 +46,21 @@ Program::Program(int width, int height){
 
 void Program::Running(){
 
-    int newWidth, newHeight;
-    SDL_GetWindowSizeInPixels(window, &newWidth, &newHeight);
+    double deltaTime;
+    Uint64 lastTime = SDL_GetTicksNS();
+    Uint64 currentTime;
 
     while (state.running) {
 
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT)
-                state.running = false;
-            if (event.type == SDL_EVENT_KEY_DOWN)
-                if (event.key.scancode == SDL_SCANCODE_ESCAPE)
-                    state.running = false;
-            if (event.type == SDL_EVENT_WINDOW_RESIZED) {
-                SDL_GetWindowSizeInPixels(window, &newWidth, &newHeight);
-                glViewport(0, 0, newWidth, newHeight);
-            }
-        }
+        currentTime = SDL_GetTicksNS();
+        deltaTime = (double)(currentTime - lastTime)/100000000.0;
+        lastTime = currentTime;
 
-        mainShader->setVec2("uResolution", newWidth, newHeight);
+        eventHandler(&event, window, deltaTime);
+
+        mainShader->setFloat("uCameraPhi", state.cameraPhi);
+        mainShader->setFloat("uCameraDistance", state.cameraDistance);
+        mainShader->setVec2("uResolution", state.width, state.height);
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);
