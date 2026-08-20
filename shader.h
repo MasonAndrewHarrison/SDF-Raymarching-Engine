@@ -19,6 +19,7 @@ public:
 private:
     void setFloat(const std::string& name, float value);
     void setVec2(const std::string& name, float x, float y);
+    void setVec3(const std::string& name, float x, float y, float z);
     void setMat4(const std::string& name, const float* matrix);
     unsigned int program;
     std::string readFile(const std::string& path);

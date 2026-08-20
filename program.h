@@ -7,6 +7,7 @@
 #include "state.h"
 #include <stdio.h>
 #include "event.h"
+#include "camera.h"
 
 class Program{
     public:

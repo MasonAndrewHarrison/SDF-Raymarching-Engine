@@ -9,5 +9,6 @@ State stateInit() {
         .height         = -1,
         .width          = -1,
         .cameraDistance = -3,
+        .rayOriginZ     = -3,
     };
 }

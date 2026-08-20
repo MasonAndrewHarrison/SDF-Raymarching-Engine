@@ -57,6 +57,7 @@ void Program::Running(){
         lastTime = currentTime;
 
         eventHandler(&event, window, deltaTime);
+        updateRayOrigin();
 
         mainShader->setUniforms();
         mainShader->use();

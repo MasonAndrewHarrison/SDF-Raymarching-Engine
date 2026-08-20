@@ -15,6 +15,7 @@ typedef struct State {
     int width;
     int height;
     float focusX, focusY, focusZ;
+    float rayOriginX, rayOriginY, rayOriginZ;
     float cameraPhi, cameraTheda;
     float cameraDistance;
 } State;

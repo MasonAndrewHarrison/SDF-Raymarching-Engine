@@ -55,8 +55,7 @@ Shader::~Shader(){
 
 void Shader::setUniforms(){
 
-    glm::vec3 rayOrigin;
-
+    this->setVec3("uRayOrigin", state.rayOriginX, state.rayOriginY, state.rayOriginZ);
     this->setFloat("uCameraPhi", state.cameraPhi);
     this->setFloat("uCameraTheda", state.cameraTheda);
     this->setFloat("uCameraDistance", state.cameraDistance);
@@ -73,6 +72,10 @@ void Shader::setFloat(const std::string& name, float value) {
 
 void Shader::setVec2(const std::string& name, float x, float y) {
     glUniform2f(glGetUniformLocation(program, name.c_str()), x, y);
+}
+
+void Shader::setVec3(const std::string& name, float x, float y, float z) {
+    glUniform3f(glGetUniformLocation(program, name.c_str()), x, y, z);
 }
 
 void Shader::setMat4(const std::string& name, const float* matrix) {
