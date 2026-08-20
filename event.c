@@ -3,6 +3,7 @@
 static void eventButtonPress(SDL_Event* event, double deltaTime);
 static void eventButtonHold(const bool* stateArray, double deltaTime);
 static void eventMouseMotion(SDL_Event* event, double deltaTime);
+static void eventMouseWheel(SDL_Event* event, double deltaTime);
 
 void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
 
@@ -17,6 +18,10 @@ void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
 
         if (event->type == SDL_EVENT_MOUSE_MOTION){
             eventMouseMotion(event, deltaTime);
+        }
+
+        if (event->type == SDL_EVENT_MOUSE_WHEEL){
+            eventMouseWheel(event, deltaTime);
         }
 
         if (event->type == SDL_EVENT_WINDOW_RESIZED) {
@@ -59,10 +64,16 @@ static void eventMouseMotion(SDL_Event* event, double deltaTime){
     float sensitivity = 0.005f;
 
     if (event->button.button == SDL_BUTTON_MIDDLE) {
-        state.cameraTheda -= event->motion.yrel * sensitivity;
+        state.cameraTheda += event->motion.yrel * sensitivity;
         state.cameraPhi   += event->motion.xrel * sensitivity;
     }
 
     if (state.cameraPhi > 89.0f)  state.cameraPhi = 89.0f;
     if (state.cameraPhi < -89.0f) state.cameraPhi = -89.0f;
+}
+
+static void eventMouseWheel(SDL_Event* event, double deltaTime){
+
+    float zoomSpeed = 0.5f;
+    state.cameraDistance += event->wheel.y * zoomSpeed;
 }
