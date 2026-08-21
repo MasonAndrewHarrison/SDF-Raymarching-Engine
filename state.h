@@ -20,7 +20,7 @@ typedef struct State {
     float cameraDistance;
 } State;
 
-State stateInit();
+void stateInit(void);
 
 extern State state;
 
@@ -28,4 +28,24 @@ extern State state;
 }
 #endif
 
-#endif
+#endif // STATE_H
+
+
+#ifdef STATE_IMPLEMENTATION
+#ifndef STATE_IMPLEMENTATION_DONE
+#define STATE_IMPLEMENTATION_DONE
+
+State state;
+
+void stateInit(void) {
+    State s = {0};
+    s.running   = true;
+    s.width     = -1;
+    s.height    = -1;
+    s.rayOriginZ = -3.0f;
+    s.cameraDistance = -3.0f;
+    state = s;
+}
+
+#endif // STATE_INPLEMENTATION_DONE
+#endif // STATE_IMPLEMENTATION
