@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "state.h"
+#include "../state.h"
 #include "math.h"
 
 #ifndef M_PI

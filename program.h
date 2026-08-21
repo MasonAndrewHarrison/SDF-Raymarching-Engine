@@ -1,13 +1,12 @@
 #pragma once
-
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
-#include "shader.h"
-#include "screen.h"
+#include "rendering/shader.h"
+#include "rendering/screen.h"
 #include "state.h"
 #include <stdio.h>
-#include "event.h"
-#include "camera.h"
+#include "input/event.h"
+#include "input/camera.h"
 
 class Program{
     public:

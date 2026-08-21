@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "state.h"
+#include "../state.h"
 #include <glm/glm.hpp>
 
 class Shader {

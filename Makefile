@@ -3,8 +3,8 @@ CXX    = g++
 CFLAGS = -Wall -O2
 LIBS   = -lSDL3 -lGL -lGLEW -lm
 
-CPP_SRC = main.cpp screen.cpp shader.cpp program.cpp
-C_SRC   = event.c
+CPP_SRC = main.cpp rendering/screen.cpp rendering/shader.cpp program.cpp
+C_SRC   = input/event.c
 
 CPP_OBJ = $(CPP_SRC:.cpp=.o)
 C_OBJ   = $(C_SRC:.c=.o)

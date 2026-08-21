@@ -2,7 +2,7 @@
 #define EVENT_H
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
-#include "state.h"
+#include "../state.h"
 #include "stdio.h"
 
 
