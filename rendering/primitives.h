@@ -7,7 +7,7 @@
 typedef enum{
     SPHERE,
     RECTANGLE,
-} PrimitivesType;
+} PrimitiveType;
 
 typedef struct{
     glm::vec4 position;
@@ -16,15 +16,20 @@ typedef struct{
     glm::vec4 data;
 } PrimitiveTransform;
 
+typedef struct{
+    int32_t type;
+    int32_t colorID;
+} PrimitiveInfo;
+
 
 class Primitives{
     public:
         Primitives();
-        void Append(PrimitivesType type, glm::vec3 position, glm::vec3 scale);
+        void Append(PrimitiveType type, int32_t colorID, glm::vec3 position, glm::vec3 scale);
         void Bind();
     private:
         std::vector<PrimitiveTransform> primitiveTransforms;
-        std::vector<int32_t> primitiveType;
-        GLuint typeBuffer;
+        std::vector<PrimitiveInfo> primitiveInfo;
+        GLuint infoBuffer;
         GLuint transformBuffer;
 };
