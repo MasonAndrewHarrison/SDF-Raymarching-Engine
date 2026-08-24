@@ -9,6 +9,7 @@
 #include "input/camera.h"
 #include "rendering/primitives.h"
 #include <vector>
+#include <iostream>
 
 class Program{
     public:

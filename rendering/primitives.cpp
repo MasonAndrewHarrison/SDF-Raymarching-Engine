@@ -6,12 +6,13 @@ Primitives::Primitives(){
     primitiveType.reserve(1000);
 }
 
-void Primitives::Append(PrimitivesType type, glm::vec3 position){
+void Primitives::Append(PrimitivesType type, glm::vec3 position, glm::vec3 scale){
 
     primitiveType.push_back(type);
 
     PrimitiveTransform transform = {
-        .position = glm::vec4(position, 0.0)
+        .position = glm::vec4(position, 0.0),
+        .scale = glm::vec4(scale, 0.0)
     };
     primitiveTransforms.push_back(transform);
 }

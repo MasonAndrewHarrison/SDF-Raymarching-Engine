@@ -47,18 +47,31 @@ Program::Program(int width, int height){
 void Program::Running(){
 
     double deltaTime;
-    Uint64 lastTime = SDL_GetTicksNS();
+    Uint64 lastTime = SDL_GetTicks();
+    Uint64 lastTimeFPS = SDL_GetTicks();
     Uint64 currentTime;
+    Uint64 elapsedTimeFPS;
+    int frameCount;
 
-    Primitives p = Primitives();
-    p.Append(SPHERE, glm::vec3{0.0, 1.0, 1.0});
-    p.Bind();
+
+    Primitives primitives = Primitives();
+    primitives.Append(SPHERE, glm::vec3{0.0, 1.0, 1.0}, glm::vec3{1.0, 1.0, 1.0});
+    primitives.Append(RECTANGLE, glm::vec3{0.0, -1.0, 0.0}, glm::vec3{1.0, 1.0, 1.0});
+    primitives.Bind();
 
     while (state.running) {
 
-        currentTime = SDL_GetTicksNS();
-        deltaTime = (double)(currentTime - lastTime)/100000000.0;
+        currentTime = SDL_GetTicks();
+        deltaTime = (double)(currentTime - lastTime)/1000.0f;
         lastTime = currentTime;
+
+        frameCount++;
+        elapsedTimeFPS = currentTime - lastTimeFPS;
+        if (elapsedTimeFPS >= 1000){
+            std::cout << "FPS: " << (frameCount * 1000.0f) / elapsedTimeFPS << std::endl;
+            frameCount = 0;
+            lastTimeFPS = currentTime;
+        }
 
         eventHandler(&event, window, deltaTime);
         updateRayOrigin();

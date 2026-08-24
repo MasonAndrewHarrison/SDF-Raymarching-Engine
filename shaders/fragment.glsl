@@ -17,12 +17,14 @@ layout(binding = 2, std430) readonly buffer SSBO2 {
     PrimitiveTransform primitiveTransforms[];
 };
 
-
 uniform vec2 uResolution;
 uniform float uCameraPhi;
 uniform float uCameraTheda;
 uniform float uCameraDistance;
 uniform vec3 uRayOrigin;
+
+#define SPHERE 0
+#define RECTANGLE 1
 
 float sdBox( vec3 p, vec3 b )
 {
@@ -38,16 +40,27 @@ vec3 rot3D(vec3 worldPos, vec3 axis, float angle){
     return mix(dot(axis, worldPos) * axis, worldPos, cos(angle)) + cross(axis, worldPos) * sin(angle);
 }
 
+float sdShape(vec3 worldPos, int index){
+    vec3 shapePos = primitiveTransforms[index].position.xyz;
+    vec3 shapeScale = primitiveTransforms[index].scale.xyz;
+
+    if (types[index] == SPHERE){
+        return sdSphere(worldPos - shapePos, shapeScale.x);
+    }
+    else if (types[index] == RECTANGLE){
+        return sdBox(worldPos - shapePos, shapeScale);
+    }
+}
+
 float map(vec3 worldPos){
-    vec3 spherePos = primitiveTransforms[0].position.xyz;
-    vec3 rotatedPos = rot3D(worldPos, vec3(0, 1, 0), 0.0);
-    float sphere = sdSphere(rotatedPos - spherePos, 1.);
-
-    vec3 boxPos = vec3(5, 0, 2);
-    float box = sdBox(rotatedPos - boxPos, vec3(1, 1, 1));
-
-    float ground = rotatedPos.y + 1.75;
-    return min(ground, min(box, sphere));
+    float min = 1;
+    for (int i = 0; i < 2; i++){
+        float shape = sdShape(worldPos, i);
+        if (min > shape){
+            min = shape;
+        }
+    }
+    return min;
 }
 
 void main(){

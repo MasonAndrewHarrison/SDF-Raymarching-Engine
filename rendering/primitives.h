@@ -20,7 +20,7 @@ typedef struct{
 class Primitives{
     public:
         Primitives();
-        void Append(PrimitivesType type, glm::vec3 position);
+        void Append(PrimitivesType type, glm::vec3 position, glm::vec3 scale);
         void Bind();
     private:
         std::vector<PrimitiveTransform> primitiveTransforms;
