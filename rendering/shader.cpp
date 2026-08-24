@@ -55,6 +55,7 @@ Shader::~Shader(){
 
 void Shader::setUniforms(){
 
+    this->setVec3("uFocusPoint", state.focusX, state.focusY, state.focusZ);
     this->setVec3("uRayOrigin", state.rayOriginX, state.rayOriginY, state.rayOriginZ);
     this->setFloat("uCameraPhi", state.cameraPhi);
     this->setFloat("uCameraTheda", state.cameraTheda);

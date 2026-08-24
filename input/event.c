@@ -1,12 +1,13 @@
 #include "event.h"
 
 static void eventButtonPress(SDL_Event* event, double deltaTime);
-static void eventButtonHold(const bool* stateArray, double deltaTime);
+static void eventButtonHold(double deltaTime);
 static void eventMouseMotion(SDL_Event* event, double deltaTime);
 static void eventMouseWheel(SDL_Event* event, double deltaTime);
 
 void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
 
+    state.keyboardState = SDL_GetKeyboardState(NULL);
     while (SDL_PollEvent(event)) {
         if (event->type == SDL_EVENT_QUIT) {
             state.running = false;
@@ -29,8 +30,7 @@ void eventHandler(SDL_Event* event, SDL_Window* window, double deltaTime){
             glViewport(0, 0, state.width, state.height);
         }
     }
-    const bool* stateArray = SDL_GetKeyboardState(NULL);
-    eventButtonHold(stateArray, deltaTime);
+    eventButtonHold(deltaTime);
 }
 
 static void eventButtonPress(SDL_Event* event, double deltaTime){
@@ -43,25 +43,32 @@ static void eventButtonPress(SDL_Event* event, double deltaTime){
     }   
 }
 
-static void eventButtonHold(const bool* stateArray, double deltaTime){
+static void eventButtonHold(double deltaTime){
 
-    if (stateArray[SDL_SCANCODE_W]){
-        state.cameraDistance += 1 * deltaTime;
+    if (state.keyboardState[SDL_SCANCODE_W]){
+        state.focusX += 1 * deltaTime;
     }
-    if (stateArray[SDL_SCANCODE_S]){
-        state.cameraDistance -= 1 * deltaTime;
+    if (state.keyboardState[SDL_SCANCODE_S]){
+        state.focusX -= 1 * deltaTime;
     }
-    if (stateArray[SDL_SCANCODE_A]){
-        state.cameraPhi -= 1 * deltaTime;
+    if (state.keyboardState[SDL_SCANCODE_Q]){
+        state.focusY -= 1 * deltaTime;
     }
-    if (stateArray[SDL_SCANCODE_D]){
-        state.cameraPhi += 1 * deltaTime;
+    if (state.keyboardState[SDL_SCANCODE_E]){
+        state.focusY += 1 * deltaTime;
     }
+    if (state.keyboardState[SDL_SCANCODE_A]){
+        state.focusZ -= 1 * deltaTime;
+    }
+    if (state.keyboardState[SDL_SCANCODE_D]){
+        state.focusZ += 1 * deltaTime;
+    }
+
 }
 
 static void eventMouseMotion(SDL_Event* event, double deltaTime){
 
-    float sensitivity = 0.005f;
+    float sensitivity = 0.005f;  
 
     if (event->button.button == SDL_BUTTON_MIDDLE) {
         state.cameraTheda += event->motion.yrel * sensitivity;
@@ -75,5 +82,17 @@ static void eventMouseMotion(SDL_Event* event, double deltaTime){
 static void eventMouseWheel(SDL_Event* event, double deltaTime){
 
     float zoomSpeed = 0.5f;
-    state.cameraDistance += event->wheel.y * zoomSpeed;
+
+    if (state.keyboardState[SDL_SCANCODE_X]){
+        state.focusX += event->wheel.y * zoomSpeed;
+    }
+    else if (state.keyboardState[SDL_SCANCODE_Z]){
+        state.focusY += event->wheel.y * zoomSpeed;
+    }
+    else if (state.keyboardState[SDL_SCANCODE_Y]){
+        state.focusZ += event->wheel.y * zoomSpeed;
+    }
+    else {
+        state.cameraDistance += event->wheel.y * zoomSpeed;
+    }
 }

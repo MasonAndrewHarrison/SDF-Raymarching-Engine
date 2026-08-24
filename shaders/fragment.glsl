@@ -1,6 +1,23 @@
-#version 330 core
+#version 460 core
 
 layout(location = 0) out vec4 color;
+
+struct PrimitiveTransform {
+    vec4 position;
+    vec4 rotation;
+    vec4 scale;
+    vec4 data;
+};
+
+layout(binding = 1, std430) readonly buffer SSBO1 {
+    int types[];
+};
+
+layout(binding = 2, std430) readonly buffer SSBO2 {
+    PrimitiveTransform primitiveTransforms[];
+};
+
+
 uniform vec2 uResolution;
 uniform float uCameraPhi;
 uniform float uCameraTheda;
@@ -22,7 +39,7 @@ vec3 rot3D(vec3 worldPos, vec3 axis, float angle){
 }
 
 float map(vec3 worldPos){
-    vec3 spherePos = vec3(0, 0, 0);
+    vec3 spherePos = primitiveTransforms[0].position.xyz;
     vec3 rotatedPos = rot3D(worldPos, vec3(0, 1, 0), 0.0);
     float sphere = sdSphere(rotatedPos - spherePos, 1.);
 
@@ -36,7 +53,6 @@ float map(vec3 worldPos){
 void main(){
 
     vec2 uv = (gl_FragCoord.xy *2.0 - uResolution.xy )/ uResolution.y;
-    vec3 rayOrigin = vec3(0, 0, uCameraDistance);
 
     vec3 rayDirection = normalize(vec3(uv, 1));
     vec3 col = vec3(0);

@@ -18,6 +18,7 @@ typedef struct State {
     float rayOriginX, rayOriginY, rayOriginZ;
     float cameraPhi, cameraTheda;
     float cameraDistance;
+    const bool* keyboardState;
 } State;
 
 void stateInit(void);

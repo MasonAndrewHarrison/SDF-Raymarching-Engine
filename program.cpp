@@ -8,8 +8,8 @@ Program::Program(int width, int height){
         return;
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -50,6 +50,10 @@ void Program::Running(){
     Uint64 lastTime = SDL_GetTicksNS();
     Uint64 currentTime;
 
+    Primitives p = Primitives();
+    p.Append(SPHERE, glm::vec3{0.0, 1.0, 1.0});
+    p.Bind();
+
     while (state.running) {
 
         currentTime = SDL_GetTicksNS();
@@ -59,12 +63,14 @@ void Program::Running(){
         eventHandler(&event, window, deltaTime);
         updateRayOrigin();
 
+        
         mainShader->setUniforms();
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);
     }
 }
+
 
 void Program::Close(){
     SDL_GL_DestroyContext(context);

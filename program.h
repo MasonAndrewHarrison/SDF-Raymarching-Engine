@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "input/event.h"
 #include "input/camera.h"
+#include "rendering/primitives.h"
+#include <vector>
 
 class Program{
     public:
