@@ -36,45 +36,67 @@ struct MapOutput {
 #define SPHERE 0
 #define RECTANGLE 1
 
-float sdBox( vec3 p, vec3 b ){
-  vec3 q = abs(p) - b;
+float sdBox(vec3 worldPos){
+  vec3 q = abs(worldPos) - vec3(1.0, 1.0, 1.0);
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 }
 
-float sdSphere(vec3 worldPos, float radius){
-    return length(worldPos) - radius;
+float sdSphere(vec3 worldPos){
+    return length(worldPos) - 1;
 }
 
 vec3 rot3D(vec3 worldPos, vec3 axis, float angle){
     return mix(dot(axis, worldPos) * axis, worldPos, cos(angle)) + cross(axis, worldPos) * sin(angle);
 }
 
-float sdShape(vec3 worldPos, int index){
-    vec3 shapePos = primitiveTransforms[index].position.xyz;
-    vec3 shapeScale = primitiveTransforms[index].scale.xyz;
-    vec3 shapeRotation = primitiveTransforms[index].rotation.xyz;
+vec3 getColor(const vec3 worldPos, int colorID){
+    if (colorID == 0){
+        return vec3(1.0, 0.0, 1.0);
+    }
+    else if (colorID == 1){
+        return vec3(0.0, 1.0, 1.0);
+    } 
+    else {
+        return vec3(1.0, 0.0, 1.0);
+    }
+}
+
+float sdShape(const vec3 worldPos, int index){
+
+    vec4 extraData = primitiveTransforms[index].data;
 
     if (primitiveInfo[index].type == SPHERE){
-        return sdSphere(worldPos - shapePos, shapeScale.x);
+        return sdSphere(worldPos);
     }
     else if (primitiveInfo[index].type == RECTANGLE){
-        return sdBox(worldPos - shapePos, shapeScale);
+        return sdBox(worldPos);
     }
     else {
-        return 100000.0;
+        return 1000000.0;
     }
 }
 
 MapOutput map(vec3 worldPos){
     MapOutput mapOutput = MapOutput (
-        100.0,
-        vec3(1.0, 0.0, 1.0)
+        1000000.0,
+        vec3(0.0, 0.0, 0.0)
     );
+    float shapeSDF;
+    vec3 localPos;
 
     for (int i = 0; i < 2; i++){
-        float shape = sdShape(worldPos, i);
-        if (mapOutput.rayDistance > shape){
-            mapOutput.rayDistance = shape;
+
+        vec3 shapePos = primitiveTransforms[i].position.xyz;
+        vec3 shapeScale = primitiveTransforms[i].scale.xyz;
+        vec3 shapeRotation = primitiveTransforms[i].rotation.xyz;
+        localPos = worldPos;
+        localPos /= shapeScale; 
+        localPos = localPos - shapePos;
+
+        shapeSDF = sdShape(localPos, i);
+        if (mapOutput.rayDistance > shapeSDF){
+            mapOutput.rayDistance = shapeSDF;
+            mapOutput.color = getColor(localPos, primitiveInfo[i].colorID);
         }
     }
     return mapOutput;
@@ -95,17 +117,21 @@ void main(){
     float rayDistance;
     MapOutput mapOutput;
  
-    for (int i = 0; i < 100; i++){
+    for (int i = 0; i < 1000000; i++){
         worldPos = uRayOrigin + rayDirection * t;
         mapOutput = map(worldPos);
         rayDistance = mapOutput.rayDistance;
-        col = mapOutput.color;
         t += rayDistance;
 
-        if (rayDistance < .0001 || t > 100.) break;
+        if (rayDistance < .0001){
+            col = mapOutput.color;
+            break;  
+        } 
+        if (t > 1000.0){
+            break;
+        }
     }
 
-    col = vec3(t * .05);
 
     color = vec4(col, 1.0);
 }

@@ -55,8 +55,8 @@ void Program::Running(){
 
 
     Primitives primitives = Primitives();
-    primitives.Append(SPHERE, 0, glm::vec3{0.0, 1.0, 1.0}, glm::vec3{1.0, 1.0, 1.0});
-    primitives.Append(RECTANGLE, 1, glm::vec3{0.0, -1.0, 0.0}, glm::vec3{1.0, 1.0, 1.0});
+    primitives.Append(SPHERE, 0, glm::vec3{-1.0, 1.0, 1.0}, glm::vec3{2.0, 2.0, 6.0});
+    primitives.Append(RECTANGLE, 1, glm::vec3{1.0, -1.0, 0.0}, glm::vec3{2.0, 3.0, 1.0});
     primitives.Bind();
 
     while (state.running) {
