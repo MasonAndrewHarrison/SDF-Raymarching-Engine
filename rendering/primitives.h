@@ -7,6 +7,7 @@
 typedef enum{
     SPHERE,
     RECTANGLE,
+    GROUND,
 } PrimitiveType;
 
 typedef struct{

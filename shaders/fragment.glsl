@@ -35,6 +35,7 @@ struct MapOutput {
 
 #define SPHERE 0
 #define RECTANGLE 1
+#define GROUND 2
 
 float sdBox(vec3 worldPos){
   vec3 q = abs(worldPos) - vec3(1.0, 1.0, 1.0);
@@ -51,7 +52,7 @@ vec3 rot3D(vec3 worldPos, vec3 axis, float angle){
 
 vec3 getColor(const vec3 worldPos, int colorID){
     if (colorID == 0){
-        return vec3(1.0, 0.0, 1.0);
+        return vec3(1.0, 1.0, 1.0);
     }
     else if (colorID == 1){
         return vec3(0.0, 1.0, 1.0);
@@ -71,6 +72,9 @@ float sdShape(const vec3 worldPos, int index){
     else if (primitiveInfo[index].type == RECTANGLE){
         return sdBox(worldPos);
     }
+    else if (primitiveInfo[index].type == GROUND){
+        return worldPos.y;
+    }
     else {
         return 1000000.0;
     }
@@ -84,7 +88,7 @@ MapOutput map(vec3 worldPos){
     float shapeSDF;
     vec3 localPos;
 
-    for (int i = 0; i < 2; i++){
+    for (int i = 0; i < 3; i++){
 
         vec3 shapePos = primitiveTransforms[i].position.xyz;
         vec3 shapeScale = primitiveTransforms[i].scale.xyz;
@@ -117,17 +121,17 @@ void main(){
     float rayDistance;
     MapOutput mapOutput;
  
-    for (int i = 0; i < 1000000; i++){
+    for (int i = 0; i < 100000; i++){
         worldPos = uRayOrigin + rayDirection * t;
         mapOutput = map(worldPos);
         rayDistance = mapOutput.rayDistance;
         t += rayDistance;
 
-        if (rayDistance < .0001){
+        if (rayDistance < .001){
             col = mapOutput.color;
             break;  
         } 
-        if (t > 1000.0){
+        if (t > 100.0){
             break;
         }
     }
