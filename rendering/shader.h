@@ -7,16 +7,20 @@
 #include <iostream>
 #include "../state.h"
 #include <glm/glm.hpp>
+#include "../input/camera.h"
 
 class Shader {
 public:
     Shader(const std::string& vertPath, const std::string& fragPath);
     ~Shader();
     void use();
+    void createCameraUBO();
+    void updateCameraUBO();
     unsigned int getID() const { return program; }
-    void setUniforms();
 
 private:
+    GLuint cameraUBO;
+    struct CameraUBO camera;
     void setFloat(const std::string& name, float value);
     void setVec2(const std::string& name, float x, float y);
     void setVec3(const std::string& name, float x, float y, float z);

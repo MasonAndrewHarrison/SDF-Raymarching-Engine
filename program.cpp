@@ -55,10 +55,12 @@ void Program::Running(){
 
 
     Primitives primitives = Primitives();
-    primitives.Append(SPHERE, 0, glm::vec3{-1.0, 1.0, 1.0}, glm::vec3{2.0, 2.0, 6.0});
-    primitives.Append(RECTANGLE, 1, glm::vec3{1.0, -1.0, 0.0}, glm::vec3{2.0, 3.0, 1.0});
+    primitives.Append(SPHERE, 0, glm::vec3{-1.0, 1.0, 1.0}, glm::vec3{1.0, 1.0, 1.0});
+    primitives.Append(RECTANGLE, 1, glm::vec3{1.3, -1.1, 0.0}, glm::vec3{2.0, 2.0, 1.0});
     primitives.Append(GROUND, 2, glm::vec3{1.0, -1.0, 0.0}, glm::vec3{2.0, 3.0, 1.0});
     primitives.Bind();
+
+    mainShader->createCameraUBO();
 
     while (state.running) {
 
@@ -78,7 +80,7 @@ void Program::Running(){
         updateRayOrigin();
 
         
-        mainShader->setUniforms();
+        mainShader->updateCameraUBO();
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);

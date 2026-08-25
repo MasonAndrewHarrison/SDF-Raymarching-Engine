@@ -53,14 +53,28 @@ Shader::~Shader(){
     glDeleteProgram(program);
 }
 
-void Shader::setUniforms(){
+void Shader::createCameraUBO(){
 
-    this->setVec3("uFocusPoint", state.focusX, state.focusY, state.focusZ);
-    this->setVec3("uRayOrigin", state.rayOriginX, state.rayOriginY, state.rayOriginZ);
-    this->setFloat("uCameraPhi", state.cameraPhi);
-    this->setFloat("uCameraTheda", state.cameraTheda);
-    this->setFloat("uCameraDistance", state.cameraDistance);
-    this->setVec2("uResolution", state.width, state.height);
+    camera = {
+        .rayOrigin = glm::vec4(state.rayOriginX, state.rayOriginY, state.rayOriginZ, state.cameraDistance),
+        .cameraAngle = glm::vec2(state.cameraPhi, state.cameraTheda),
+        .resolution = glm::vec2(state.width, state.height),
+    };
+
+    glCreateBuffers(1, &cameraUBO);
+    glNamedBufferStorage(cameraUBO, sizeof(CameraUBO), nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, cameraUBO);
+}
+
+void Shader::updateCameraUBO(){
+
+    camera = {
+        .rayOrigin = glm::vec4(state.rayOriginX, state.rayOriginY, state.rayOriginZ, state.cameraDistance),
+        .cameraAngle = glm::vec2(state.cameraPhi, state.cameraTheda),
+        .resolution = glm::vec2(state.width, state.height),
+    };
+
+    glNamedBufferSubData(cameraUBO, 0, sizeof(CameraUBO), &camera);
 }
 
 void Shader::use() {
