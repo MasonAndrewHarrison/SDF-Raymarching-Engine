@@ -51,13 +51,18 @@ void Program::Running(){
     Uint64 lastTimeFPS = SDL_GetTicks();
     Uint64 currentTime;
     Uint64 elapsedTimeFPS;
-    int frameCount;
+    int frameCount = 0;
 
 
     Primitives primitives = Primitives();
-    primitives.Append(SPHERE, 0, glm::vec3{-1.0, 1.0, 1.0}, glm::vec3{1.0, 1.0, 1.0});
-    primitives.Append(RECTANGLE, 1, glm::vec3{1.3, -1.1, 0.0}, glm::vec3{2.0, 2.0, 1.0});
-    primitives.Append(GROUND, 2, glm::vec3{1.0, -1.0, 0.0}, glm::vec3{2.0, 3.0, 1.0});
+    primitives.Append(SPHERE, 0);
+    primitives.Append(RECTANGLE, 1);
+    primitives.Append(GROUND, 2);
+    primitives.Append(CONE, 3);
+
+    primitives.Move(0, -1.0, 0.0, -2.0);
+    primitives.Move(2, 0.0, -2.0, 0.0);
+    primitives.Move(3, 0, 2, 0);
     primitives.Bind();
 
     mainShader->createCameraUBO();
@@ -67,6 +72,8 @@ void Program::Running(){
         currentTime = SDL_GetTicks();
         deltaTime = (double)(currentTime - lastTime)/1000.0f;
         lastTime = currentTime;
+        
+        primitives.UpdateTransform(3);
 
         frameCount++;
         elapsedTimeFPS = currentTime - lastTimeFPS;
