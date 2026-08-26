@@ -4,6 +4,8 @@
 #include <vector>
 #include <GL/glew.h>
 #include "../state.h"
+#include <stdio.h>
+#include <queue>
 
 typedef enum{
     SPHERE,
@@ -35,6 +37,7 @@ class Primitives{
         void UpdateInfo(int index);
         void UpdateAllInfo();
         void UpdatePrimitiveCount();
+        void UpdateSpecified();
         void Bind();
         void Move(int index, float xTranslation, float yTranslation, float zTranslation);
         void Rotate(int index, float xRotation, float yRotation, float zRotation);

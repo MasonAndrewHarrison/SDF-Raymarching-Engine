@@ -4,13 +4,11 @@
 
 
 #include <stdbool.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <queue>
 
 typedef struct {
     bool primitiveCount;
+    std::queue<int> primitiveIndexs;
 } NeedUpdate;
 
 typedef struct State {
@@ -29,9 +27,8 @@ void stateInit(void);
 
 extern State state;
 
-#ifdef __cplusplus
-}
-#endif
+#define PRIMITIVES_LEFT_UNUPDATED() \
+    (!(state).needUpdate.primitiveIndexs.empty())
 
 #endif // STATE_H
 
@@ -57,5 +54,8 @@ void stateInit(void) {
     state = s;
 }
 
+
+
 #endif // STATE_INPLEMENTATION_DONE
 #endif // STATE_IMPLEMENTATION
+

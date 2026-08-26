@@ -60,8 +60,19 @@ void Primitives::UpdateAllTransform(){
     glNamedBufferSubData(transformBuffer, 0, sizeof(PrimitiveTransform)*getSize(), (const void*)primitiveTransforms.data());
 }
 
+void Primitives::UpdateSpecified(){
+    int index;
+    while(PRIMITIVES_LEFT_UNUPDATED()){
+        index = state.needUpdate.primitiveIndexs.front();
+        UpdateTransform(index);
+        UpdateInfo(index);
+        state.needUpdate.primitiveIndexs.pop();
+    }
+}
+
 void Primitives::Move(int index, float xTranslation, float yTranslation, float zTranslation){
 
+    state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
     shape.position[0] = xTranslation;
     shape.position[1] = yTranslation;
@@ -70,6 +81,7 @@ void Primitives::Move(int index, float xTranslation, float yTranslation, float z
 
 void Primitives::Rotate(int index, float xRotation, float yRotation, float zRotation){
 
+    state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
     shape.rotation[0] = xRotation;
     shape.rotation[1] = yRotation;
@@ -78,14 +90,11 @@ void Primitives::Rotate(int index, float xRotation, float yRotation, float zRota
 
 void Primitives::Scale(int index, float xScale, float yScale, float zScale){
 
+    state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
     shape.scale[0] = xScale;
     shape.scale[1] = yScale;
     shape.scale[2] = zScale;
-}
-
-int Primitives::getSize(){
-    return primitiveInfo.size();
 }
 
 /*
@@ -94,9 +103,14 @@ int Primitives::getSize(){
  */
 void Primitives::Data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData){
 
+    state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
     shape.data = data;
     shape.position[3] = bonusPositionData;
     shape.scale[3] = bonusScaleData;
     shape.rotation[3] = bonusRotateData;
+}
+
+int Primitives::getSize(){
+    return primitiveInfo.size();
 }

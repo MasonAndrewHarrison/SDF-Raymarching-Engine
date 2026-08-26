@@ -70,14 +70,13 @@ void Program::Running(){
     mainShader->createPrimitiveCountUBO();
 
     primitives.Append(CONE, 1);
-    
+    primitives.Move(1, 3.0, 0.5, 2.0);
 
     while (state.running) {
 
         currentTime = SDL_GetTicks();
         deltaTime = (double)(currentTime - lastTime)/1000.0f;
         lastTime = currentTime;
-        
 
         frameCount++;
         elapsedTimeFPS = currentTime - lastTimeFPS;
@@ -89,8 +88,9 @@ void Program::Running(){
 
         eventHandler(&event, window, deltaTime);
         updateRayOrigin();
-
+        primitives.UpdateSpecified();
         mainShader->updateCameraUBO();
+
         if (state.needUpdate.primitiveCount){
             primitives.UpdatePrimitiveCount();
             mainShader->updatePrimitiveCountUBO(primitives.getSize());
