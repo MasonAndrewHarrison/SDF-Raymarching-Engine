@@ -28,6 +28,10 @@ layout(binding = 2, std430) readonly buffer SSBO2 {
     PrimitiveTransform primitiveTransforms[];
 };
 
+layout(binding = 3, std140) uniform UBO2 {
+    int primitiveCount;
+};
+
 struct MapOutput {
     float rayDistance;
     int primitiveIndex;
@@ -113,7 +117,7 @@ MapOutput map(vec3 worldPos){
     float shapeSDF;
     vec3 localPos;
 
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < primitiveCount; i++){
 
         vec3 shapePos = primitiveTransforms[i].position.xyz;
         vec3 shapeScale = primitiveTransforms[i].scale.xyz;
@@ -165,12 +169,12 @@ void main(){
         rayDistance = mapOutput.rayDistance;
         t += rayDistance;
 
-        if (rayDistance < .001){
+        if (rayDistance < .0001){
             int index = mapOutput.primitiveIndex;
             col = getColor(worldPos, primitiveInfo[index].colorID);
             normal = calcNormal(worldPos);
             vec3 lightDir = normalize(vec3(0.5, 0.6, -0.75));
-            float diffuse = max(dot(normal, lightDir), 0.0);
+            float diffuse = max(dot(normal, lightDir), 0.2);
 
             col *= diffuse;
 

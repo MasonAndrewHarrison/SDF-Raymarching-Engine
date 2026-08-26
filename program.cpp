@@ -61,11 +61,16 @@ void Program::Running(){
     primitives.Append(CONE, 3);
 
     primitives.Move(0, -1.0, 0.0, -2.0);
+    primitives.Move(1, 3.0, 0.0, -2.0);
     primitives.Move(2, 0.0, -2.0, 0.0);
     primitives.Move(3, 0, 2, 0);
     primitives.Bind();
 
     mainShader->createCameraUBO();
+    mainShader->createPrimitiveCountUBO();
+
+    primitives.Append(CONE, 1);
+    
 
     while (state.running) {
 
@@ -73,7 +78,6 @@ void Program::Running(){
         deltaTime = (double)(currentTime - lastTime)/1000.0f;
         lastTime = currentTime;
         
-        primitives.UpdateTransform(3);
 
         frameCount++;
         elapsedTimeFPS = currentTime - lastTimeFPS;
@@ -86,8 +90,12 @@ void Program::Running(){
         eventHandler(&event, window, deltaTime);
         updateRayOrigin();
 
-        
         mainShader->updateCameraUBO();
+        if (state.needUpdate.primitiveCount){
+            primitives.UpdatePrimitiveCount();
+            mainShader->updatePrimitiveCountUBO(primitives.getSize());
+        }
+       
         mainShader->use();
         screen->draw();
         SDL_GL_SwapWindow(window);

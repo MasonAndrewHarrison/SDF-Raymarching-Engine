@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+typedef struct {
+    bool primitiveCount;
+} NeedUpdate;
 
 typedef struct State {
     bool running;
@@ -19,6 +22,7 @@ typedef struct State {
     float cameraPhi, cameraTheda;
     float cameraDistance;
     const bool* keyboardState;
+    NeedUpdate needUpdate;
 } State;
 
 void stateInit(void);
@@ -39,12 +43,17 @@ extern State state;
 State state;
 
 void stateInit(void) {
+    NeedUpdate needUpdate = {0};
+    needUpdate.primitiveCount = true;
+
+
     State s = {0};
     s.running   = true;
     s.width     = -1;
     s.height    = -1;
     s.rayOriginZ = -3.0f;
     s.cameraDistance = -3.0f;
+    s.needUpdate = needUpdate;
     state = s;
 }
 

@@ -77,6 +77,17 @@ void Shader::updateCameraUBO(){
     glNamedBufferSubData(cameraUBO, 0, sizeof(CameraUBO), &camera);
 }
 
+void Shader::createPrimitiveCountUBO(){
+    glCreateBuffers(1, &primitiveCountUBO);
+    glNamedBufferStorage(primitiveCountUBO, sizeof(int), nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 3, primitiveCountUBO);
+}
+
+void Shader::updatePrimitiveCountUBO(int size){
+    glNamedBufferSubData(primitiveCountUBO, 0, sizeof(int), &size);
+    state.needUpdate.primitiveCount = false;
+}
+
 void Shader::use() {
     glUseProgram(program);
 }

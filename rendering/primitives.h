@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <GL/glew.h>
+#include "../state.h"
 
 typedef enum{
     SPHERE,
@@ -27,8 +28,13 @@ typedef struct{
 class Primitives{
     public:
         Primitives();
+        int getSize();
         void Append(PrimitiveType type, int32_t colorID);
         void UpdateTransform(int index);
+        void UpdateAllTransform();
+        void UpdateInfo(int index);
+        void UpdateAllInfo();
+        void UpdatePrimitiveCount();
         void Bind();
         void Move(int index, float xTranslation, float yTranslation, float zTranslation);
         void Rotate(int index, float xRotation, float yRotation, float zRotation);

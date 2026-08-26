@@ -17,6 +17,7 @@ void Primitives::Append(PrimitiveType type, int32_t colorID){
         .data = glm::vec4(0.0, 0.0, 0.0, 0.0),
     };
     primitiveTransforms.emplace_back(transform);
+    state.needUpdate.primitiveCount = true;
 }
 
 void Primitives::Bind(){
@@ -30,12 +31,33 @@ void Primitives::Bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, transformBuffer);
 }
 
+void Primitives::UpdatePrimitiveCount(){
+    Bind();
+}
+
 void Primitives::UpdateTransform(int index){
 
     GLintptr offset = index * sizeof(PrimitiveTransform);
     GLsizeiptr size = sizeof(PrimitiveTransform);
 
     glNamedBufferSubData(transformBuffer, offset, size, (const void*)&primitiveTransforms.at(index));
+}
+
+void Primitives::UpdateInfo(int index){
+    GLintptr offset = index * sizeof(PrimitiveInfo);
+    GLsizeiptr size = sizeof(PrimitiveInfo);
+
+    glNamedBufferSubData(infoBuffer, offset, size, (const void*)&primitiveInfo.at(index));
+}
+
+void Primitives::UpdateAllInfo(){
+    
+    glNamedBufferSubData(infoBuffer, 0, sizeof(PrimitiveInfo)*getSize(), (const void*)primitiveInfo.data());
+}
+
+void Primitives::UpdateAllTransform(){
+
+    glNamedBufferSubData(transformBuffer, 0, sizeof(PrimitiveTransform)*getSize(), (const void*)primitiveTransforms.data());
 }
 
 void Primitives::Move(int index, float xTranslation, float yTranslation, float zTranslation){
@@ -60,6 +82,10 @@ void Primitives::Scale(int index, float xScale, float yScale, float zScale){
     shape.scale[0] = xScale;
     shape.scale[1] = yScale;
     shape.scale[2] = zScale;
+}
+
+int Primitives::getSize(){
+    return primitiveInfo.size();
 }
 
 /*
