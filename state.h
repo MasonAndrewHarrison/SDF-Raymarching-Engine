@@ -7,14 +7,13 @@
 #include <queue>
 
 typedef struct {
-    bool primitiveCount;
+    bool primitiveSize;
     std::queue<int> primitiveIndexs;
 } NeedUpdate;
 
 typedef struct State {
     bool running;
-    int width;
-    int height;
+    int width, height;
     float focusX, focusY, focusZ;
     float rayOriginX, rayOriginY, rayOriginZ;
     float cameraPhi, cameraTheda;
@@ -41,7 +40,7 @@ State state;
 
 void stateInit(void) {
     NeedUpdate needUpdate = {0};
-    needUpdate.primitiveCount = true;
+    needUpdate.primitiveSize = true;
 
 
     State s = {0};

@@ -28,6 +28,7 @@ typedef struct{
 
 
 class Primitives{
+
     public:
         Primitives();
         int getSize();
@@ -36,16 +37,21 @@ class Primitives{
         void UpdateAllTransform();
         void UpdateInfo(int index);
         void UpdateAllInfo();
-        void UpdatePrimitiveCount();
+        void UpdatePrimitiveSize();
         void UpdateSpecified();
         void Bind();
         void Move(int index, float xTranslation, float yTranslation, float zTranslation);
         void Rotate(int index, float xRotation, float yRotation, float zRotation);
         void Scale(int index, float xScale, float yScale, float zScale);
         void Data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData);
+
     private:
-        std::vector<PrimitiveTransform> primitiveTransforms;
-        std::vector<PrimitiveInfo> primitiveInfo;
+        GLuint primitiveCountUBO;
+        GLuint possibleHitTempleteBuffer;
+        GLuint possibleHitListBuffer;
         GLuint infoBuffer;
         GLuint transformBuffer;
+        std::vector<PrimitiveTransform> primitiveTransforms;
+        std::vector<PrimitiveInfo> primitiveInfo;
+        std::vector<uint> possibleHitTemplete;
 };

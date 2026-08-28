@@ -16,13 +16,10 @@ public:
     void use();
     void createCameraUBO();
     void updateCameraUBO();
-    void createPrimitiveCountUBO();
-    void updatePrimitiveCountUBO(int size);
     unsigned int getID() const { return program; }
 
 private:
     GLuint cameraUBO;
-    GLuint primitiveCountUBO;
     struct CameraUBO camera;
     void setFloat(const std::string& name, float value);
     void setVec2(const std::string& name, float x, float y);

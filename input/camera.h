@@ -15,7 +15,7 @@ void updateRayOrigin();
 struct CameraUBO {
     glm::vec4 rayOrigin;
     glm::vec2 cameraAngle;
-    glm::vec2 resolution;
+    glm::ivec2 resolution;
 };
 
 inline void updateRayOrigin(){

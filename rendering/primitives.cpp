@@ -4,9 +4,18 @@
 Primitives::Primitives(){
     primitiveTransforms.reserve(1000);
     primitiveInfo.reserve(1000);
+    possibleHitTemplete.resize(1, ~0u);
+
+    glCreateBuffers(1, &primitiveCountUBO);
+    glNamedBufferStorage(primitiveCountUBO, sizeof(int), nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 3, primitiveCountUBO);
 }
 
 void Primitives::Append(PrimitiveType type, int32_t colorID){
+
+    if (possibleHitTemplete.size() < (primitiveInfo.size() + 31) / 32){
+        possibleHitTemplete.push_back(~0u);
+    }
 
     primitiveInfo.push_back({type, colorID}); 
 
@@ -17,10 +26,22 @@ void Primitives::Append(PrimitiveType type, int32_t colorID){
         .data = glm::vec4(0.0, 0.0, 0.0, 0.0),
     };
     primitiveTransforms.emplace_back(transform);
-    state.needUpdate.primitiveCount = true;
+    state.needUpdate.primitiveSize = true;
 }
 
 void Primitives::Bind(){
+
+    int totalWords = (primitiveInfo.size() + 31) / 32;
+
+    glCreateBuffers(1, &possibleHitTempleteBuffer);
+    glNamedBufferStorage(possibleHitTempleteBuffer, sizeof(uint) * totalWords, (const void *)possibleHitTemplete.data(), GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, possibleHitTempleteBuffer);
+
+    totalWords *= (state.height * state.width);
+
+    glCreateBuffers(1, &possibleHitListBuffer);
+    glNamedBufferStorage(possibleHitListBuffer, sizeof(uint) * totalWords, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, possibleHitListBuffer);
 
     glCreateBuffers(1, &infoBuffer);
     glNamedBufferStorage(infoBuffer, sizeof(int32_t) * 2 * primitiveInfo.size(), (const void *)primitiveInfo.data(), GL_DYNAMIC_STORAGE_BIT);
@@ -31,8 +52,11 @@ void Primitives::Bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, transformBuffer);
 }
 
-void Primitives::UpdatePrimitiveCount(){
+void Primitives::UpdatePrimitiveSize(){
     Bind();
+    int size = getSize();
+    glNamedBufferSubData(primitiveCountUBO, 0, sizeof(int), &size);
+    state.needUpdate.primitiveSize = false;
 }
 
 void Primitives::UpdateTransform(int index){

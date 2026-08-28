@@ -17,7 +17,7 @@ layout(location = 0) out vec4 color;
 layout(binding = 0, std140) uniform UBO1 {
     vec4 uRayOrigin;
     vec2 uCameraAngle;
-    vec2 uResolution;
+    ivec2 uResolution;
 };
 
 layout(binding = 1, std430) readonly buffer SSBO1 {
@@ -32,17 +32,40 @@ layout(binding = 3, std140) uniform UBO2 {
     int primitiveCount;
 };
 
+layout(binding = 4, std430) readonly buffer SSBO3 {
+    uint primitiveHitListTemplete[];
+};
+
+layout(binding = 5, std430) buffer SSBO4 {
+    uint primitivePixelHitList[];
+};
+
 struct MapOutput {
     float rayDistance;
     int primitiveIndex;
 };
 
-#define INVERSE_SQRT_OF_3 0.577350269189626
+#define INVERSE_SQRT_OF_3 0.577350269189626 
+#define MAX_RAY_DISTANCE 100
 
 #define SPHERE 0
 #define RECTANGLE 1
 #define GROUND 2
 #define CONE 3
+
+bool hitListFlag(uint index, int baseOffset) {
+    uint word = primitivePixelHitList[baseOffset + index >> 5]; 
+    uint bit  = index & 31u; // Same as index % 32 
+
+    return (word & (1u << bit)) != 0u;
+}
+
+void hitListClear(uint index, int baseOffset){
+
+    uint bit  = index & 31u; // Same as index % 32 
+
+    primitivePixelHitList[baseOffset * index >> 5] &= ~(1u << bit);
+}
 
 float sdBox(vec3 worldPos){
     vec3 q = abs(worldPos) - vec3(1.0, 1.0, 1.0);
@@ -109,6 +132,15 @@ float sdShape(const vec3 worldPos, int index){
     }
 }
 
+
+int getPixelHitBaseOffset(){
+    int wordCount = (primitiveCount + 31) / 32;
+    ivec2 pixelCoord = ivec2(gl_FragCoord.xy);
+    int pixelIndex = pixelCoord.y * uResolution.x + pixelCoord.x;
+    return wordCount * pixelIndex;
+
+}
+
 MapOutput map(vec3 worldPos){
     MapOutput mapOutput = MapOutput (
         1000000.0,
@@ -117,20 +149,26 @@ MapOutput map(vec3 worldPos){
     float shapeSDF;
     vec3 localPos;
 
+
+
     for (int i = 0; i < primitiveCount; i++){
 
-        vec3 shapePos = primitiveTransforms[i].position.xyz;
-        vec3 shapeScale = primitiveTransforms[i].scale.xyz;
-        vec3 shapeRotation = primitiveTransforms[i].rotation.xyz;
-        localPos = worldPos;
-        localPos /= shapeScale; 
-        localPos = localPos - shapePos;
+        if (hitListFlag(i, getPixelHitBaseOffset())){
 
-        shapeSDF = sdShape(localPos, i);
-        if (mapOutput.rayDistance > shapeSDF){
-            mapOutput.rayDistance = shapeSDF;
-            mapOutput.primitiveIndex = i;
+            vec3 shapePos = primitiveTransforms[i].position.xyz;
+            vec3 shapeScale = primitiveTransforms[i].scale.xyz;
+            vec3 shapeRotation = primitiveTransforms[i].rotation.xyz;
+            localPos = worldPos;
+            localPos /= shapeScale; 
+            localPos = localPos - shapePos;
+
+            shapeSDF = sdShape(localPos, i);
+            if (mapOutput.rayDistance > shapeSDF){
+                mapOutput.rayDistance = shapeSDF;
+                mapOutput.primitiveIndex = i;
+            }
         }
+
     }
     return mapOutput;
 }
@@ -147,15 +185,45 @@ vec3 calcNormal(vec3 p) {
     );
 }
 
+void initPossibleHitList(vec3 rayOrgin, vec3 rayDirection){
+
+    int wordCount = (primitiveCount + 31) / 32;
+    int baseOffset = getPixelHitBaseOffset();
+
+    for (int i = 0; i < wordCount; i++){
+        primitivePixelHitList[baseOffset + i] = primitiveHitListTemplete[i];
+    }
+
+    for (int i = 0; i < primitiveCount; i++){
+
+        /*vec3 position =  primitiveTransforms[i].position.xyz - rayOrgin;
+
+        float t = dot(rayDirection, position);
+
+        t = clamp(t, 0, MAX_RAY_DISTANCE);
+        vec3 rayOfT = rayOrgin + t * rayDirection;
+
+        float distanceFromRay = distance(rayOfT, position);*/
+
+        if (gl_FragCoord.x > 700){
+            hitListClear(uint(i), baseOffset);
+            
+        }
+    }
+}
+
 void main(){
 
-    vec2 uv = (gl_FragCoord.xy *2.0 - uResolution.xy )/ uResolution.y;
+    vec2 uv = (gl_FragCoord.xy *2.0 - vec2(uResolution.xy))/ float(uResolution.y);
+
 
     vec3 rayDirection = normalize(vec3(uv, 1));
     vec3 col = vec3(0.1);
    
     rayDirection = rot3D(rayDirection, vec3(1, 0, 0), uCameraAngle.y); 
     rayDirection = rot3D(rayDirection, vec3(0, 1, 0), uCameraAngle.x);
+
+    initPossibleHitList(uRayOrigin.xyz, rayDirection);
 
     float t = 0.0;
     vec3 worldPos;
@@ -181,7 +249,7 @@ void main(){
             break;  
         } 
 
-        if (t > 75.0){
+        if (t > MAX_RAY_DISTANCE){
             break;
         }
     }

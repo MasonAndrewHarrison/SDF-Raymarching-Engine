@@ -67,7 +67,6 @@ void Program::Running(){
     primitives.Bind();
 
     mainShader->createCameraUBO();
-    mainShader->createPrimitiveCountUBO();
 
     primitives.Append(CONE, 1);
     primitives.Move(1, 3.0, 0.5, 2.0);
@@ -91,9 +90,8 @@ void Program::Running(){
         primitives.UpdateSpecified();
         mainShader->updateCameraUBO();
 
-        if (state.needUpdate.primitiveCount){
-            primitives.UpdatePrimitiveCount();
-            mainShader->updatePrimitiveCountUBO(primitives.getSize());
+        if (state.needUpdate.primitiveSize){
+            primitives.UpdatePrimitiveSize();
         }
        
         mainShader->use();

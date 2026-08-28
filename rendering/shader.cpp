@@ -58,7 +58,7 @@ void Shader::createCameraUBO(){
     camera = {
         .rayOrigin = glm::vec4(state.rayOriginX, state.rayOriginY, state.rayOriginZ, state.cameraDistance),
         .cameraAngle = glm::vec2(state.cameraPhi, state.cameraTheda),
-        .resolution = glm::vec2(state.width, state.height),
+        .resolution = glm::ivec2(state.width, state.height),
     };
 
     glCreateBuffers(1, &cameraUBO);
@@ -71,21 +71,10 @@ void Shader::updateCameraUBO(){
     camera = {
         .rayOrigin = glm::vec4(state.rayOriginX, state.rayOriginY, state.rayOriginZ, state.cameraDistance),
         .cameraAngle = glm::vec2(state.cameraPhi, state.cameraTheda),
-        .resolution = glm::vec2(state.width, state.height),
+        .resolution = glm::ivec2(state.width, state.height),
     };
 
     glNamedBufferSubData(cameraUBO, 0, sizeof(CameraUBO), &camera);
-}
-
-void Shader::createPrimitiveCountUBO(){
-    glCreateBuffers(1, &primitiveCountUBO);
-    glNamedBufferStorage(primitiveCountUBO, sizeof(int), nullptr, GL_DYNAMIC_STORAGE_BIT);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 3, primitiveCountUBO);
-}
-
-void Shader::updatePrimitiveCountUBO(int size){
-    glNamedBufferSubData(primitiveCountUBO, 0, sizeof(int), &size);
-    state.needUpdate.primitiveCount = false;
 }
 
 void Shader::use() {
