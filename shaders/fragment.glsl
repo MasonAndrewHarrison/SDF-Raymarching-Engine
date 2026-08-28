@@ -54,17 +54,16 @@ struct MapOutput {
 #define CONE 3
 
 bool hitListFlag(uint index, int baseOffset) {
-    uint word = primitivePixelHitList[baseOffset + index >> 5]; 
-    uint bit  = index & 31u; // Same as index % 32 
+    uint word = primitivePixelHitList[baseOffset + int(index >> 5)]; 
+    uint bit  = index & 31u; 
 
     return (word & (1u << bit)) != 0u;
 }
 
 void hitListClear(uint index, int baseOffset){
 
-    uint bit  = index & 31u; // Same as index % 32 
-
-    primitivePixelHitList[baseOffset * index >> 5] &= ~(1u << bit);
+    uint bit  = index & 31u; 
+    primitivePixelHitList[baseOffset + int(index >> 5)] &= ~(1u << bit);
 }
 
 float sdBox(vec3 worldPos){
@@ -185,7 +184,7 @@ vec3 calcNormal(vec3 p) {
     );
 }
 
-void initPossibleHitList(vec3 rayOrgin, vec3 rayDirection){
+void initPossibleHitList(vec3 rayOrigin, vec3 rayDirection){
 
     int wordCount = (primitiveCount + 31) / 32;
     int baseOffset = getPixelHitBaseOffset();
@@ -196,16 +195,16 @@ void initPossibleHitList(vec3 rayOrgin, vec3 rayDirection){
 
     for (int i = 0; i < primitiveCount; i++){
 
-        /*vec3 position =  primitiveTransforms[i].position.xyz - rayOrgin;
+        vec3 position =  primitiveTransforms[i].position.xyz;
+        vec3 shapePosition = position - rayOrigin;
 
-        float t = dot(rayDirection, position);
+        float t = dot(shapePosition, rayDirection);
+        t = clamp(t, 0.0, float(MAX_RAY_DISTANCE));
 
-        t = clamp(t, 0, MAX_RAY_DISTANCE);
-        vec3 rayOfT = rayOrgin + t * rayDirection;
+        vec3 closestPointToRay = rayOrigin + rayDirection*t;
+        float distanceFromRay = distance(closestPointToRay, position);
 
-        float distanceFromRay = distance(rayOfT, position);*/
-
-        if (gl_FragCoord.x > 700){
+        if (distanceFromRay > 5.0){
             hitListClear(uint(i), baseOffset);
             
         }
