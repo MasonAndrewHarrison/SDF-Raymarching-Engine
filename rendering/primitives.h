@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <queue>
 
+
 typedef enum{
     SPHERE,
     RECTANGLE,
@@ -24,6 +25,7 @@ typedef struct{
 typedef struct{
     int32_t type;
     int32_t colorID;
+    float boundingDistance;
 } PrimitiveInfo;
 
 
@@ -46,6 +48,7 @@ class Primitives{
         void Data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData);
 
     private:
+        float getShapeUnitDistance(PrimitiveType type);
         GLuint primitiveCountUBO;
         GLuint possibleHitTempleteBuffer;
         GLuint possibleHitListBuffer;

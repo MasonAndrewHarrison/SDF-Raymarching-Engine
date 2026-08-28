@@ -11,13 +11,24 @@ Primitives::Primitives(){
     glBindBufferBase(GL_UNIFORM_BUFFER, 3, primitiveCountUBO);
 }
 
+float Primitives::getShapeUnitDistance(PrimitiveType type){
+
+    switch (type) {
+        case SPHERE: return 1;
+        case RECTANGLE: return std::sqrt(3.0);
+        case GROUND: return std::numeric_limits<float>::infinity();
+        case CONE: return std::sqrt(2.0);
+        default: return 1;
+    }
+}
+
 void Primitives::Append(PrimitiveType type, int32_t colorID){
 
     if (possibleHitTemplete.size() < (primitiveInfo.size() + 31) / 32){
         possibleHitTemplete.push_back(~0u);
     }
 
-    primitiveInfo.push_back({type, colorID}); 
+    primitiveInfo.push_back({type, colorID, getShapeUnitDistance(type)}); 
 
     PrimitiveTransform transform = {
         .position = glm::vec4(0.0, 0.0, 0.0, 0.0),
@@ -44,7 +55,7 @@ void Primitives::Bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, possibleHitListBuffer);
 
     glCreateBuffers(1, &infoBuffer);
-    glNamedBufferStorage(infoBuffer, sizeof(int32_t) * 2 * primitiveInfo.size(), (const void *)primitiveInfo.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(infoBuffer, sizeof(int32_t) * 3 * primitiveInfo.size(), (const void *)primitiveInfo.data(), GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, infoBuffer);
 
     glCreateBuffers(1, &transformBuffer);

@@ -10,6 +10,7 @@ struct PrimitiveTransform {
 struct PrimitiveInfo {
     int type;
     int colorID;
+    float boundingDistance;
 };
 
 layout(location = 0) out vec4 color;
@@ -202,9 +203,11 @@ void initPossibleHitList(vec3 rayOrigin, vec3 rayDirection){
         t = clamp(t, 0.0, float(MAX_RAY_DISTANCE));
 
         vec3 closestPointToRay = rayOrigin + rayDirection*t;
-        float distanceFromRay = distance(closestPointToRay, position);
+        float distanceFromRay = distance(closestPointToRay, position); 
+        float boundingRadius = primitiveInfo[i].boundingDistance;
 
-        if (distanceFromRay > 5.0){
+        if (distanceFromRay > boundingRadius){
+
             hitListClear(uint(i), baseOffset);
             
         }
