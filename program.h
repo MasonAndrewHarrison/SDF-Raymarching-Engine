@@ -14,8 +14,8 @@
 class Program{
     public:
         Program(int width, int height);
-        void Running();
-        void Close();
+        void running();
+        void close();
     private:
         Shader* mainShader;
         Screen* screen;

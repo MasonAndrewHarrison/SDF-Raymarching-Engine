@@ -44,7 +44,7 @@ Program::Program(int width, int height){
 
 }
 
-void Program::Running(){
+void Program::running(){
 
     double deltaTime;
     Uint64 lastTime = SDL_GetTicks();
@@ -55,27 +55,31 @@ void Program::Running(){
 
 
     Primitives primitives = Primitives();
-    primitives.Append(SPHERE, 0);
-    primitives.Append(RECTANGLE, 1);
-    primitives.Append(GROUND, 2);
-    primitives.Append(CONE, 3);
+    primitives.append(SPHERE, 0);
+    primitives.append(RECTANGLE, 1);
+    primitives.append(GROUND, 2);
+    primitives.append(CONE, 3);
 
-    primitives.Move(0, -1.0, 0.0, -2.0);
-    primitives.Move(1, 3.0, 0.0, -2.0);
-    primitives.Move(2, 0.0, -2.0, 0.0);
-    primitives.Move(3, 0, 2, 0);
-    primitives.Bind();
+    primitives.move(0, -1.0, 0.0, -2.0);
+    primitives.move(1, 3.0, 0.0, -2.0);
+    primitives.move(2, 0.0, -2.0, 0.0);
+    primitives.move(3, 0, 2, 0);
+
+    primitives.scale(1, 1.5, 0.5, 1.5);
+    primitives.bind();
 
     mainShader->createCameraUBO();
 
-    primitives.Append(CONE, 1);
-    primitives.Move(1, 3.0, 0.5, 2.0);
+    primitives.append(CONE, 1);
+    primitives.move(1, 3.0, .5, 2.0);
 
     while (state.running) {
 
         currentTime = SDL_GetTicks();
         deltaTime = (double)(currentTime - lastTime)/1000.0f;
         lastTime = currentTime;
+
+        
 
         frameCount++;
         elapsedTimeFPS = currentTime - lastTimeFPS;
@@ -87,11 +91,11 @@ void Program::Running(){
 
         eventHandler(&event, window, deltaTime);
         updateRayOrigin();
-        primitives.UpdateSpecified();
+        primitives.updateSpecified();
         mainShader->updateCameraUBO();
 
         if (state.needUpdate.primitiveSize){
-            primitives.UpdatePrimitiveSize();
+            primitives.updatePrimitiveSize();
         }
        
         mainShader->use();
@@ -101,7 +105,7 @@ void Program::Running(){
 }
 
 
-void Program::Close(){
+void Program::close(){
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();

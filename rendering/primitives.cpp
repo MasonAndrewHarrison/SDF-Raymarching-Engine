@@ -22,7 +22,7 @@ float Primitives::getShapeUnitDistance(PrimitiveType type){
     }
 }
 
-void Primitives::Append(PrimitiveType type, int32_t colorID){
+void Primitives::append(PrimitiveType type, int32_t colorID){
 
     if (possibleHitTemplete.size() < (primitiveInfo.size() + 31) / 32){
         possibleHitTemplete.push_back(~0u);
@@ -40,7 +40,7 @@ void Primitives::Append(PrimitiveType type, int32_t colorID){
     state.needUpdate.primitiveSize = true;
 }
 
-void Primitives::Bind(){
+void Primitives::bind(){
 
     int totalWords = (primitiveInfo.size() + 31) / 32;
 
@@ -55,7 +55,7 @@ void Primitives::Bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, possibleHitListBuffer);
 
     glCreateBuffers(1, &infoBuffer);
-    glNamedBufferStorage(infoBuffer, sizeof(int32_t) * 3 * primitiveInfo.size(), (const void *)primitiveInfo.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(infoBuffer, sizeof(PrimitiveInfo) * primitiveInfo.size(), (const void *)primitiveInfo.data(), GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, infoBuffer);
 
     glCreateBuffers(1, &transformBuffer);
@@ -63,14 +63,14 @@ void Primitives::Bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, transformBuffer);
 }
 
-void Primitives::UpdatePrimitiveSize(){
-    Bind();
+void Primitives::updatePrimitiveSize(){
+    bind();
     int size = getSize();
     glNamedBufferSubData(primitiveCountUBO, 0, sizeof(int), &size);
     state.needUpdate.primitiveSize = false;
 }
 
-void Primitives::UpdateTransform(int index){
+void Primitives::updateTransform(int index){
 
     GLintptr offset = index * sizeof(PrimitiveTransform);
     GLsizeiptr size = sizeof(PrimitiveTransform);
@@ -78,34 +78,34 @@ void Primitives::UpdateTransform(int index){
     glNamedBufferSubData(transformBuffer, offset, size, (const void*)&primitiveTransforms.at(index));
 }
 
-void Primitives::UpdateInfo(int index){
+void Primitives::updateInfo(int index){
     GLintptr offset = index * sizeof(PrimitiveInfo);
     GLsizeiptr size = sizeof(PrimitiveInfo);
 
     glNamedBufferSubData(infoBuffer, offset, size, (const void*)&primitiveInfo.at(index));
 }
 
-void Primitives::UpdateAllInfo(){
+void Primitives::updateAllInfo(){
     
     glNamedBufferSubData(infoBuffer, 0, sizeof(PrimitiveInfo)*getSize(), (const void*)primitiveInfo.data());
 }
 
-void Primitives::UpdateAllTransform(){
+void Primitives::updateAllTransform(){
 
     glNamedBufferSubData(transformBuffer, 0, sizeof(PrimitiveTransform)*getSize(), (const void*)primitiveTransforms.data());
 }
 
-void Primitives::UpdateSpecified(){
+void Primitives::updateSpecified(){
     int index;
     while(PRIMITIVES_LEFT_UNUPDATED()){
         index = state.needUpdate.primitiveIndexs.front();
-        UpdateTransform(index);
-        UpdateInfo(index);
+        updateTransform(index);
+        updateInfo(index);
         state.needUpdate.primitiveIndexs.pop();
     }
 }
 
-void Primitives::Move(int index, float xTranslation, float yTranslation, float zTranslation){
+void Primitives::move(int index, float xTranslation, float yTranslation, float zTranslation){
 
     state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
@@ -114,7 +114,7 @@ void Primitives::Move(int index, float xTranslation, float yTranslation, float z
     shape.position[2] = zTranslation;
 }
 
-void Primitives::Rotate(int index, float xRotation, float yRotation, float zRotation){
+void Primitives::rotate(int index, float xRotation, float yRotation, float zRotation){
 
     state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
@@ -123,7 +123,10 @@ void Primitives::Rotate(int index, float xRotation, float yRotation, float zRota
     shape.rotation[2] = zRotation;
 }
 
-void Primitives::Scale(int index, float xScale, float yScale, float zScale){
+void Primitives::scale(int index, float xScale, float yScale, float zScale){
+
+    int32_t type = primitiveInfo[index].type;
+    primitiveInfo[index].boundingDistance = getShapeUnitDistance((PrimitiveType)type) * std::max({xScale, yScale, zScale});
 
     state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);
@@ -136,7 +139,7 @@ void Primitives::Scale(int index, float xScale, float yScale, float zScale){
  * The bonus____Data is using leftover data in the PrimitiveTransform struct that is 
  * there for padding reasons.
  */
-void Primitives::Data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData){
+void Primitives::data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData){
 
     state.needUpdate.primitiveIndexs.push(index);
     PrimitiveTransform& shape = primitiveTransforms.at(index);

@@ -6,6 +6,7 @@
 #include "../state.h"
 #include <stdio.h>
 #include <queue>
+#include <algorithm>
 
 
 typedef enum{
@@ -34,18 +35,18 @@ class Primitives{
     public:
         Primitives();
         int getSize();
-        void Append(PrimitiveType type, int32_t colorID);
-        void UpdateTransform(int index);
-        void UpdateAllTransform();
-        void UpdateInfo(int index);
-        void UpdateAllInfo();
-        void UpdatePrimitiveSize();
-        void UpdateSpecified();
-        void Bind();
-        void Move(int index, float xTranslation, float yTranslation, float zTranslation);
-        void Rotate(int index, float xRotation, float yRotation, float zRotation);
-        void Scale(int index, float xScale, float yScale, float zScale);
-        void Data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData);
+        void append(PrimitiveType type, int32_t colorID);
+        void updateTransform(int index);
+        void updateAllTransform();
+        void updateInfo(int index);
+        void updateAllInfo();
+        void updatePrimitiveSize();
+        void updateSpecified();
+        void bind();
+        void move(int index, float xTranslation, float yTranslation, float zTranslation);
+        void rotate(int index, float xRotation, float yRotation, float zRotation);
+        void scale(int index, float xScale, float yScale, float zScale);
+        void data(int index, glm::vec4 data, float bonusRotateData, float bonusScaleData, float bonusPositionData);
 
     private:
         float getShapeUnitDistance(PrimitiveType type);

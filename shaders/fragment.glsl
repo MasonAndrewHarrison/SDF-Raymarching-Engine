@@ -67,13 +67,13 @@ void hitListClear(uint index, int baseOffset){
     primitivePixelHitList[baseOffset + int(index >> 5)] &= ~(1u << bit);
 }
 
-float sdBox(vec3 worldPos){
-    vec3 q = abs(worldPos) - vec3(1.0, 1.0, 1.0);
-    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+float sdBox(vec3 worldPos, vec3 b ){
+  vec3 q = abs(worldPos) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 }
 
-float sdSphere(vec3 worldPos){
-    return length(worldPos) - 1;
+float sdSphere(vec3 worldPos, float radius){
+    return length(worldPos) - radius;
 }
 
 vec3 rot3D(vec3 worldPos, vec3 axis, float angle){
@@ -114,18 +114,22 @@ float sdCone( vec3 worldPos) {
 float sdShape(const vec3 worldPos, int index){
 
     vec4 extraData = primitiveTransforms[index].data;
+    vec3 scaler = primitiveTransforms[index].scale.xyz;
 
     if (primitiveInfo[index].type == SPHERE){
-        return sdSphere(worldPos);
+        return sdSphere(worldPos, scaler.x);
     }
     else if (primitiveInfo[index].type == RECTANGLE){
-        return sdBox(worldPos);
+        return sdBox(worldPos, scaler);
     }
     else if (primitiveInfo[index].type == GROUND){
         return worldPos.y;
     }
     else if (primitiveInfo[index].type == CONE){
-        return sdCone(worldPos);
+        vec3 localPos = worldPos;
+        localPos /= scaler; 
+        float minScale = min(scaler.x, min(scaler.y, scaler.z));
+        return sdCone(localPos)*minScale;
     }
     else {
         return 1000000.0;
@@ -150,7 +154,6 @@ MapOutput map(vec3 worldPos){
     vec3 localPos;
 
 
-
     for (int i = 0; i < primitiveCount; i++){
 
         if (hitListFlag(i, getPixelHitBaseOffset())){
@@ -159,7 +162,6 @@ MapOutput map(vec3 worldPos){
             vec3 shapeScale = primitiveTransforms[i].scale.xyz;
             vec3 shapeRotation = primitiveTransforms[i].rotation.xyz;
             localPos = worldPos;
-            localPos /= shapeScale; 
             localPos = localPos - shapePos;
 
             shapeSDF = sdShape(localPos, i);
@@ -168,7 +170,6 @@ MapOutput map(vec3 worldPos){
                 mapOutput.primitiveIndex = i;
             }
         }
-
     }
     return mapOutput;
 }
@@ -194,6 +195,7 @@ void initPossibleHitList(vec3 rayOrigin, vec3 rayDirection){
         primitivePixelHitList[baseOffset + i] = primitiveHitListTemplete[i];
     }
 
+    
     for (int i = 0; i < primitiveCount; i++){
 
         vec3 position =  primitiveTransforms[i].position.xyz;
