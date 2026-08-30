@@ -25,7 +25,7 @@ run: output
 	./output
 
 debug: $(CPP_SRC) $(C_SRC)
-	$(CXX) $(CPP_SRC) $(C_SRC) -o output_debug -O2 $(DEBUG_FLAGS) $(LIBS)
+	$(CXX) $(CPP_SRC) $(C_SRC) -o output -O2 $(DEBUG_FLAGS) $(LIBS)
 
 clean:
 	rm -f *.o output
