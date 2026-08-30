@@ -8,6 +8,7 @@
 #include "input/event.h"
 #include "input/camera.h"
 #include "rendering/primitives.h"
+#include "rendering/voxelGrid.h"
 #include <vector>
 #include <iostream>
 

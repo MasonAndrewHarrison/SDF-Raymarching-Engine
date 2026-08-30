@@ -53,6 +53,9 @@ void Program::running(){
     Uint64 elapsedTimeFPS;
     int frameCount = 0;
 
+    VoxelGrid voxelGrid = VoxelGrid({100, 100, 100});
+    voxelGrid.set(0, 0, 0, 2);
+    voxelGrid.bind();
 
     Primitives primitives = Primitives();
     primitives.append(SPHERE, 0);
@@ -65,7 +68,7 @@ void Program::running(){
     primitives.move(2, 0.0, -2.0, 0.0);
     primitives.move(3, 0, 2, 0);
 
-    primitives.scale(1, 1.5, 0.5, 1.5);
+
     primitives.bind();
 
     mainShader->createCameraUBO();

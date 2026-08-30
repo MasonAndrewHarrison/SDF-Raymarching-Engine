@@ -25,7 +25,7 @@ typedef struct{
 
 typedef struct{
     int32_t type;
-    int32_t colorID;
+    uint32_t colorID;
     float boundingDistance;
 } PrimitiveInfo;
 
@@ -35,7 +35,7 @@ class Primitives{
     public:
         Primitives();
         int getSize();
-        void append(PrimitiveType type, int32_t colorID);
+        void append(PrimitiveType type, uint32_t colorID);
         void updateTransform(int index);
         void updateAllTransform();
         void updateInfo(int index);

@@ -22,7 +22,7 @@ float Primitives::getShapeUnitDistance(PrimitiveType type){
     }
 }
 
-void Primitives::append(PrimitiveType type, int32_t colorID){
+void Primitives::append(PrimitiveType type, uint32_t colorID){
 
     if (possibleHitTemplete.size() < (primitiveInfo.size() + 31) / 32){
         possibleHitTemplete.push_back(~0u);
