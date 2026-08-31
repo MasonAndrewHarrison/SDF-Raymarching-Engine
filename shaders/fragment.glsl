@@ -58,7 +58,7 @@ layout(binding = 7, std430) readonly buffer SSBO6 {
 
 struct MapOutput {
     float rayDistance;
-    int primitiveIndex;
+    int colorID;
 };
 
 #define INVERSE_SQRT_OF_3 0.577350269189626 
@@ -167,7 +167,12 @@ uint getGridIndex(vec3 worldPos){
     return x + y * voxelGridMetaData.resolution.x + z * voxelGridMetaData.resolution.x * voxelGridMetaData.resolution.y;
 }
 
-float sdVoxelGrid(vec3 worldPos){
+MapOutput sdVoxelGrid(vec3 worldPos){
+
+    MapOutput mapOutput = MapOutput (
+        1000000000.0,
+        -1
+    );
 
     vec3 paddingThickness = 2.0 / voxelGridMetaData.resolution;
     float boundingSDF = sdBox(worldPos, voxelGridMetaData.scale + paddingThickness);
@@ -179,11 +184,19 @@ float sdVoxelGrid(vec3 worldPos){
         uint64_t voxelValue = voxelGrid[index];
 
         if(voxelValue != 0 && gridSDF < 0){
-            return 0;
+            mapOutput.rayDistance = 0;
+            mapOutput.colorID = int(voxelValue);
+            return mapOutput;
         }
-        else {return 0.01;}
+        else {
+            mapOutput.rayDistance = 0.01;
+            return mapOutput;
+        }
     }
-    else {return gridSDF;}
+    else {
+        mapOutput.rayDistance = gridSDF;
+        return mapOutput;
+    }
 }
 
 MapOutput map(vec3 worldPos){
@@ -192,7 +205,6 @@ MapOutput map(vec3 worldPos){
         -1
     );
     float shapeSDF;
-    float voxelGridSDF;
     vec3 localPos;
 
     for (int i = 0; i < primitiveCount; i++){
@@ -208,21 +220,21 @@ MapOutput map(vec3 worldPos){
             shapeSDF = sdShape(localPos, i);
             if (mapOutput.rayDistance > shapeSDF){
                 mapOutput.rayDistance = shapeSDF;
-                mapOutput.primitiveIndex = i;
+                mapOutput.colorID = primitiveInfo[i].colorID;
             }
         }
     }
     localPos = worldPos;
-    voxelGridSDF = sdVoxelGrid(localPos);
-    if (mapOutput.rayDistance > voxelGridSDF){
-        mapOutput.rayDistance = voxelGridSDF;
-        mapOutput.primitiveIndex = 3;
+    MapOutput voxelGridOutput = sdVoxelGrid(localPos);
+    if (mapOutput.rayDistance > voxelGridOutput.rayDistance){
+        mapOutput.rayDistance = voxelGridOutput.rayDistance;
+        mapOutput.colorID = voxelGridOutput.colorID;
     }
     return mapOutput;
 }
 
 vec3 calcNormal(vec3 p) {
-    float epsilon = 0.0001;
+    float epsilon = 0.001;
     vec2 epsilonVector = vec2(1.0, -1.0) * INVERSE_SQRT_OF_3 * epsilon;
 
     return normalize(
@@ -287,8 +299,7 @@ void main(){
         t += rayDistance;
 
         if (rayDistance < .0005){
-            int index = mapOutput.primitiveIndex;
-            col = getColor(worldPos, primitiveInfo[index].colorID);
+            col = getColor(worldPos, mapOutput.colorID);
             normal = calcNormal(worldPos);
             vec3 lightDir = normalize(vec3(0.5, 0.6, -0.75));
             float diffuse = max(dot(normal, lightDir), 0.2);

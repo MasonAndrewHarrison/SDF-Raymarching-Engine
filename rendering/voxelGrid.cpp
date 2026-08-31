@@ -22,6 +22,10 @@ void VoxelGrid::set(int x, int y, int z, uint32_t colorID){
     grid[getIndex(x+VOXEL_PADDING, y+VOXEL_PADDING, z+VOXEL_PADDING)] = colorID;
 }
 
+uint32_t VoxelGrid::get(int x, int y, int z){
+    return grid[getIndex(x+VOXEL_PADDING, y+VOXEL_PADDING, z+VOXEL_PADDING)];
+}
+
 void VoxelGrid::bind(){
 
     GridMetaData gridMetaData = {
@@ -39,4 +43,23 @@ void VoxelGrid::bind(){
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, gridBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, gridMetaDataBuffer);
 
+}
+
+void VoxelGrid::sphere(){
+    int radius = std::min(resolution.x, std::min(resolution.y, resolution.z))/2;
+    int total = 0;
+    for ( int x = -radius; x <= radius; x++){
+        for ( int y = -radius; y <= radius; y++){
+            for ( int z = -radius; z <= radius; z++){
+                uint32_t colorID = rand()%3 + 1;
+                float distance = glm::length(glm::vec3(x, y, z));
+                if (distance < radius){
+                    set(x, y, z, colorID);
+                }
+                
+                total++;
+            }
+        }
+    }
+    printf("%d\n", total);
 }

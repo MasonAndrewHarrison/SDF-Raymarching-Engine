@@ -2,7 +2,8 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
-#include <stdio.h>
+#include <stdio.h> 
+#include <algorithm>
 
 #define  VOXEL_PADDING 1
 
@@ -18,7 +19,9 @@ class VoxelGrid {
         VoxelGrid(glm::ivec3 resolution);
         void set(int x, int y, int z, uint32_t colorID);
         int getIndex(int x, int y, int z);
+        uint32_t get(int x, int y, int z);
         void bind();
+        void sphere();
     private:
         GLuint gridBuffer;
         GLuint gridMetaDataBuffer;
