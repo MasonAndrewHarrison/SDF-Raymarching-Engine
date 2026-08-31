@@ -4,10 +4,12 @@
 #include <GL/glew.h>
 #include <stdio.h>
 
+#define  VOXEL_PADDING 1
+
 typedef struct{
-    glm::ivec3 resolution;
-    glm::vec3 position;
-    glm::vec3 scale;
+    glm::ivec4 resolution;
+    glm::vec4 position;
+    glm::vec4 scale;
 } GridMetaData;
 
 class VoxelGrid {

@@ -1,4 +1,5 @@
 #version 460 core
+#extension GL_ARB_gpu_shader_int64 : require
 
 struct PrimitiveTransform {
     vec4 position;
@@ -11,6 +12,12 @@ struct PrimitiveInfo {
     int type;
     int colorID;
     float boundingDistance;
+};
+
+struct VoxelGridMetaData {
+    ivec3 resolution;
+    vec3 position;
+    vec3 scale;
 };
 
 layout(location = 0) out vec4 color;
@@ -41,6 +48,14 @@ layout(binding = 5, std430) buffer SSBO4 {
     uint primitivePixelHitList[];
 };
 
+layout(binding = 6, std430) readonly buffer SSBO5 {
+    uint64_t voxelGrid[];
+};
+
+layout(binding = 7, std430) readonly buffer SSBO6 {
+    VoxelGridMetaData voxelGridMetaData;
+};
+
 struct MapOutput {
     float rayDistance;
     int primitiveIndex;
@@ -48,6 +63,7 @@ struct MapOutput {
 
 #define INVERSE_SQRT_OF_3 0.577350269189626 
 #define MAX_RAY_DISTANCE 100
+#define VOXEL_PADDING 1 //Make sure that this matches with the #define in 'voxelGrid.h'
 
 #define SPHERE 0
 #define RECTANGLE 1
@@ -110,8 +126,15 @@ float sdCone( vec3 worldPos) {
   return sqrt(d)*sign(s);
 }
 
+int getPixelHitBaseOffset(){
+    int wordCount = (primitiveCount + 31) / 32;
+    ivec2 pixelCoord = ivec2(gl_FragCoord.xy);
+    int pixelIndex = pixelCoord.y * uResolution.x + pixelCoord.x;
+    return wordCount * pixelIndex;
 
-float sdShape(const vec3 worldPos, int index){
+}
+
+float sdShape(vec3 worldPos, int index){
 
     vec4 extraData = primitiveTransforms[index].data;
     vec3 scaler = primitiveTransforms[index].scale.xyz;
@@ -132,17 +155,35 @@ float sdShape(const vec3 worldPos, int index){
         return sdCone(localPos)*minScale;
     }
     else {
-        return 1000000.0;
+        return 100000000.0;
     }
 }
 
+uint getGridIndex(vec3 worldPos){
 
-int getPixelHitBaseOffset(){
-    int wordCount = (primitiveCount + 31) / 32;
-    ivec2 pixelCoord = ivec2(gl_FragCoord.xy);
-    int pixelIndex = pixelCoord.y * uResolution.x + pixelCoord.x;
-    return wordCount * pixelIndex;
+    int x = int(worldPos.x + voxelGridMetaData.resolution.x/2);
+    int y = int(worldPos.y + voxelGridMetaData.resolution.y/2);
+    int z = int(worldPos.z + voxelGridMetaData.resolution.z/2);
+    return x + y * voxelGridMetaData.resolution.x + z * voxelGridMetaData.resolution.x * voxelGridMetaData.resolution.y;
+}
 
+float sdVoxelGrid(vec3 worldPos){
+
+    vec3 paddingThickness = 2.0 / voxelGridMetaData.resolution;
+    float boundingSDF = sdBox(worldPos, voxelGridMetaData.scale + paddingThickness);
+    float gridSDF = sdBox(worldPos, voxelGridMetaData.scale);
+    if (boundingSDF < 0){
+
+        vec3 localPos = worldPos * voxelGridMetaData.resolution.xyz / 2;
+        uint index = getGridIndex(localPos+1.5);
+        uint64_t voxelValue = voxelGrid[index];
+
+        if(voxelValue != 0 && gridSDF < 0){
+            return 0;
+        }
+        else {return 0.01;}
+    }
+    else {return gridSDF;}
 }
 
 MapOutput map(vec3 worldPos){
@@ -151,8 +192,8 @@ MapOutput map(vec3 worldPos){
         -1
     );
     float shapeSDF;
+    float voxelGridSDF;
     vec3 localPos;
-
 
     for (int i = 0; i < primitiveCount; i++){
 
@@ -170,6 +211,12 @@ MapOutput map(vec3 worldPos){
                 mapOutput.primitiveIndex = i;
             }
         }
+    }
+    localPos = worldPos;
+    voxelGridSDF = sdVoxelGrid(localPos);
+    if (mapOutput.rayDistance > voxelGridSDF){
+        mapOutput.rayDistance = voxelGridSDF;
+        mapOutput.primitiveIndex = 3;
     }
     return mapOutput;
 }
@@ -195,7 +242,6 @@ void initPossibleHitList(vec3 rayOrigin, vec3 rayDirection){
         primitivePixelHitList[baseOffset + i] = primitiveHitListTemplete[i];
     }
 
-    
     for (int i = 0; i < primitiveCount; i++){
 
         vec3 position =  primitiveTransforms[i].position.xyz;
@@ -220,7 +266,6 @@ void main(){
 
     vec2 uv = (gl_FragCoord.xy *2.0 - vec2(uResolution.xy))/ float(uResolution.y);
 
-
     vec3 rayDirection = normalize(vec3(uv, 1));
     vec3 col = vec3(0.1);
    
@@ -235,13 +280,13 @@ void main(){
     float rayDistance;
     MapOutput mapOutput;
  
-    for (int i = 0; i < 100000; i++){
+    for (int i = 0; i < 10000; i++){
         worldPos = uRayOrigin.xyz + rayDirection * t;
         mapOutput = map(worldPos);
         rayDistance = mapOutput.rayDistance;
         t += rayDistance;
 
-        if (rayDistance < .0001){
+        if (rayDistance < .0005){
             int index = mapOutput.primitiveIndex;
             col = getColor(worldPos, primitiveInfo[index].colorID);
             normal = calcNormal(worldPos);
