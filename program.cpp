@@ -53,7 +53,7 @@ void Program::running(){
     Uint64 elapsedTimeFPS;
     int frameCount = 0;
 
-    VoxelGrid voxelGrid = VoxelGrid({200, 200, 200});
+    VoxelGrid voxelGrid = VoxelGrid({400, 400, 400});
     voxelGrid.sphere();
     voxelGrid.bind();
 

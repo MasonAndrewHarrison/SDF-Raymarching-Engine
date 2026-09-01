@@ -189,7 +189,7 @@ MapOutput sdVoxelGrid(vec3 worldPos){
             return mapOutput;
         }
         else {
-            mapOutput.rayDistance = 0.01;
+            mapOutput.rayDistance = 0.005;
             return mapOutput;
         }
     }
@@ -199,7 +199,7 @@ MapOutput sdVoxelGrid(vec3 worldPos){
     }
 }
 
-MapOutput map(vec3 worldPos){
+MapOutput primitiveMap(vec3 worldPos){
     MapOutput mapOutput = MapOutput (
         1000000.0,
         -1
@@ -224,13 +224,20 @@ MapOutput map(vec3 worldPos){
             }
         }
     }
+    return mapOutput;
+}
+
+MapOutput gridMap(vec3 worldPos){
+    MapOutput mapOutput = MapOutput (
+        1000000.0,
+        -1
+    );
+    vec3 localPos;
     localPos = worldPos;
     MapOutput voxelGridOutput = sdVoxelGrid(localPos);
-    if (mapOutput.rayDistance > voxelGridOutput.rayDistance){
-        mapOutput.rayDistance = voxelGridOutput.rayDistance;
-        mapOutput.colorID = voxelGridOutput.colorID;
-    }
-    return mapOutput;
+    mapOutput.rayDistance = voxelGridOutput.rayDistance;
+    mapOutput.colorID = voxelGridOutput.colorID;
+    return  mapOutput;
 }
 
 vec3 calcNormal(vec3 p) {
@@ -238,10 +245,10 @@ vec3 calcNormal(vec3 p) {
     vec2 epsilonVector = vec2(1.0, -1.0) * INVERSE_SQRT_OF_3 * epsilon;
 
     return normalize(
-        epsilonVector.xyy * map(p + epsilonVector.xyy).rayDistance +
-        epsilonVector.yyx * map(p + epsilonVector.yyx).rayDistance +
-        epsilonVector.yxy * map(p + epsilonVector.yxy).rayDistance +
-        epsilonVector.xxx * map(p + epsilonVector.xxx).rayDistance
+        epsilonVector.xyy * primitiveMap(p + epsilonVector.xyy).rayDistance +
+        epsilonVector.yyx * primitiveMap(p + epsilonVector.yyx).rayDistance +
+        epsilonVector.yxy * primitiveMap(p + epsilonVector.yxy).rayDistance +
+        epsilonVector.xxx * primitiveMap(p + epsilonVector.xxx).rayDistance
     );
 }
 
@@ -290,22 +297,47 @@ void main(){
     vec3 worldPos;
     vec3 normal;
     float rayDistance;
-    MapOutput mapOutput;
+    float primitiveRayDistance;
+    float gridRayDistance;
+    MapOutput primitiveMapOutput;
+    MapOutput gridMapOutput;
+    bool gridHit; 
+    int colorID;
  
     for (int i = 0; i < 10000; i++){
         worldPos = uRayOrigin.xyz + rayDirection * t;
-        mapOutput = map(worldPos);
-        rayDistance = mapOutput.rayDistance;
-        t += rayDistance;
 
-        if (rayDistance < .0005){
-            col = getColor(worldPos, mapOutput.colorID);
-            normal = calcNormal(worldPos);
-            vec3 lightDir = normalize(vec3(0.5, 0.6, -0.75));
-            float diffuse = max(dot(normal, lightDir), 0.2);
+        primitiveMapOutput = primitiveMap(worldPos);
+        primitiveRayDistance = primitiveMapOutput.rayDistance;
 
-            col *= diffuse;
+        gridMapOutput = gridMap(worldPos);
+        gridRayDistance = gridMapOutput.rayDistance;
 
+        if (primitiveRayDistance < gridRayDistance){
+            t += primitiveRayDistance;
+            rayDistance = primitiveRayDistance;
+            colorID = primitiveMapOutput.colorID;
+            gridHit = false;
+        }
+        else {
+            t += gridRayDistance;
+            rayDistance = gridRayDistance;
+            colorID = gridMapOutput.colorID;
+            gridHit = true;
+        }
+
+        if (rayDistance < .005){
+            if (gridHit == true){
+                col = getColor(worldPos, colorID);
+
+            } else {
+                col = getColor(worldPos, colorID);
+                normal = calcNormal(worldPos);
+                vec3 lightDir = normalize(vec3(0.5, 0.6, -0.75));
+                float diffuse = max(dot(normal, lightDir), 0.2);
+
+                col *= diffuse;
+            }
             break;  
         } 
 

@@ -53,6 +53,7 @@ void VoxelGrid::sphere(){
             for ( int z = -radius; z <= radius; z++){
                 uint32_t colorID = rand()%3 + 1;
                 float distance = glm::length(glm::vec3(x, y, z));
+                if (x > 30) {colorID = 1;}
                 if (distance < radius){
                     set(x, y, z, colorID);
                 }
